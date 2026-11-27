@@ -104,8 +104,10 @@ vẽ lại `className` thì class lạ sẽ mất.
 | 2026-11-27 | Nút gửi và màu chính kiểu Chat với AI dùng `#a94e34` (tối: `#dc8b70`) thay vì `#d97757` | Chữ trắng trên `#d97757` chỉ khoảng 3.1:1, dưới mức đọc tốt |
 | 2026-11-27 | Nút thu gọn ở góc trên trái chỉ từ 926px, hẹp hơn thì về thanh nút dưới | Mốc docked/floating của tweb (`FLOATING_LEFT_SIDEBAR_SIZE = 925`); dưới mốc này góc trên là nút quay lại |
 | 2026-11-27 | Thu gọn sidebar đưa `--left-column-width` về 0 cho mọi kiểu (base.css); nút góc trên dịch theo `--folders-sidebar-offset` | tweb dịch cột giữa theo bề rộng cột trái, ẩn cột mà giữ biến thì khung chat lệch; thanh thư mục dọc đẩy cột trái sang phải 80px |
+| 2026-11-27 | Dòng chat ở sidebar kiểu Chat với AI lấp đủ ô 72px (khối 64px, tên + giờ), không ép 32px như Claude | Danh sách là virtual list, JS đặt dòng ở top = thứ tự × 72px. Ép thấp hơn chỉ tạo khoảng trống; đổi bước cần JS sửa logic trang (mức 2) |
+| 2026-11-27 | Ô nhập hai tầng làm bằng `flex-wrap` + `order`, bù chiều cao hàng nút bằng `padding-bottom` của `.bubbles-padding-bottom` | Telegram chừa khoảng dưới danh sách tin theo ô nhập một hàng; không bù thì tin cuối bị che |
 
-## 5. Trạng thái triển khai (2026-11-27, bản 0.10.1)
+## 5. Trạng thái triển khai (2026-11-27, bản 0.12.0)
 
 | Phần | Trạng thái |
 | --- | --- |
@@ -114,7 +116,7 @@ vẽ lại `className` thì class lạ sẽ mất.
 | Messenger: 3 kiểu, ẩn media | Selector **đoán theo hiểu biết**, chưa kiểm DOM thật. Tên biến màu của Meta chưa xác nhận |
 | Messenger: màu riêng cho tin của mình | **Chưa làm.** Cần tìm selector phân biệt (xem `themes/messenger/base.css` mục 4) |
 | Đổi tiêu đề tab | Xong |
-| Kiểu Chat với AI | Bảng màu kem/cam đất, sidebar theo chiều rộng Telegram, ô nhập bo 20px. Nút thu gọn ở góc trên trái từ 926px, ở thanh nút dưới trên cửa sổ hẹp. Xem [kế hoạch](docs/ai-theme-plan.md). Bố cục và các selector sửa lần này đã đối chiếu tweb tại `4cef169d5e16` |
+| Kiểu Chat với AI | Bảng màu kem/cam đất, sidebar theo chiều rộng Telegram, mỗi chat là khối 56px (chấm tròn, tên, giờ) giữa ô 72px của virtual list. Ô nhập hai tầng bo 20px (khối `THỬ NGHIỆM`, 0.11.0, chưa kiểm trên trang thật). Nút thu gọn ở góc trên trái từ 926px, ở thanh nút dưới trên cửa sổ hẹp; mọi phần đầu cột trái (kể cả trang con như Lưu trữ) chừa 56px để nút quay lại không sát nút thu gọn (0.11.2). Xem [kế hoạch](docs/ai-theme-plan.md). Bố cục và các selector sửa lần này đã đối chiếu tweb tại `4cef169d5e16` |
 | Đổi icon tab | Xong (bản 0.8.0). Ghi đè href của `link[rel~=icon]` mỗi 500ms, cất href thật vào `data-tgx-real-href` |
 | Ẩn ảnh preview link (Telegram K) | Thêm `.webpage-preview(-resizer)`, `.webpage-thumb` ở bản 0.8.0, chưa kiểm trên trang thật |
 

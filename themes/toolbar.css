@@ -32,7 +32,7 @@
  * Màu lấy từ bảng màu của kiểu (--tgx-*), có giá trị dự phòng. */
 #tgx-sidebar-toggle.tgx-top {
   position: fixed;
-  top: 10px;
+  top: 12px; /* giữa phần đầu sidebar cao 56px (3.5rem, _sidebar.scss) */
   /* Thanh thư mục dọc đẩy cột trái sang phải; nút đi theo để nằm trong phần đầu sidebar. */
   left: calc(8px + var(--folders-sidebar-offset, 0px));
   z-index: 2147483647;

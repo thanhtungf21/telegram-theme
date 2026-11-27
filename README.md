@@ -58,10 +58,10 @@ Bấm lần nữa mới mở như bình thường.
 - Tiêu đề tab đổi thành `Files changed · refactor/auth-session`.
 
 **Chat với AI** (đầy đủ trên Telegram K):
-- Sidebar thành "lịch sử hội thoại": có nhãn "Gần đây", mỗi chat chỉ một dòng, không avatar, không xem trước tin. Chat chưa đọc in đậm kèm một chấm.
+- Sidebar thành "lịch sử hội thoại": có nhãn "Gần đây", mỗi chat là một khối gồm tên và giờ tin cuối, không avatar, không xem trước tin. Chat chưa đọc in đậm kèm một chấm.
 - Thanh đầu chat phẳng, hiển thị tên cuộc hội thoại.
 - Tin nhắn và ô nhập thẳng hàng trong cột giữa rộng tối đa 768px. Tin nhận dùng chữ serif, tin gửi có nền riêng và bo góc.
-- Nền kem ở chế độ sáng, nền xám ấm ở chế độ tối. Ô nhập bo 20px, nút gửi vuông bo màu cam đất.
+- Nền kem ở chế độ sáng, nền xám ấm ở chế độ tối. Ô nhập hai tầng bo 20px: chữ ở trên, hàng nút ở dưới, nút gửi vuông bo màu cam đất ở góc phải.
 - Nút thu gọn sidebar ở góc trên trái trên cửa sổ rộng. Trên cửa sổ hẹp, nút nằm trong thanh dưới.
 - Tin ghim, tab thư mục và ngày phân cách được làm nhạt cho hợp bố cục. Theme ẩn dải story.
 - Tiêu đề tab: `Tối ưu truy vấn MongoDB có index`.

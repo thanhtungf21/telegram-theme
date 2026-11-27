@@ -102,14 +102,16 @@ html.tgx-on.tgx-theme-ai :is(#column-left .chatlist, #column-left .sidebar-conte
   box-shadow: none !important;
 }
 
-/* Chừa chỗ cho nút góc trên ở màn hình có sidebar cố định. Các trang con
- * của sidebar cần giữ chỗ cho nút quay lại và nút thao tác của Telegram. */
+/* Chừa chỗ cho nút thu gọn ở góc trên (toolbar.css: left 8px, rộng 32px) khi sidebar cố
+ * định. Áp cho mọi phần đầu trong cột trái, kể cả trang con như Lưu trữ: nút quay lại
+ * (.sidebar-close-button, sliderTab.ts) nằm ở mép trái phần đầu, không chừa thì nó sát nút
+ * thu gọn và dễ bấm nhầm. 56px = 8px lề + 32px nút + 16px khoảng cách. */
 @media (min-width: 926px) {
-  html.tgx-on.tgx-theme-ai #column-left .item-main .sidebar-header {
-    padding-inline-start: 48px !important;
+  html.tgx-on.tgx-theme-ai #column-left .sidebar-header {
+    padding-inline-start: 56px !important;
   }
   html.tgx-on.tgx-theme-ai.tgx-left-collapsed .chat .topbar .chat-info-container {
-    padding-inline-start: 48px !important;
+    padding-inline-start: 56px !important;
   }
 }
 html.tgx-on.tgx-theme-ai #column-left .input-search {
@@ -129,82 +131,168 @@ html.tgx-on.tgx-theme-ai #column-left :is(.btn-icon, .animated-menu-icon) {
   color: var(--tgx-text-3) !important;
 }
 
-/* Nhãn "Gần đây" trên đầu danh sách: chữ 12px, thẳng mép trái với chữ của từng dòng
- * (8px lề danh sách + 8px lề trong dòng = 16px). */
-html.tgx-on.tgx-theme-ai #chatlist-container .chatlist:first-of-type::before {
+/* Danh sách chat ở sidebar là virtual list: JS đặt mỗi dòng (.chatlist-chat, position
+ * absolute) ở top = thứ tự × 72px (deferredSortedVirtualList.tsx, itemSize 72; đối chiếu
+ * commit 4cef169d5e16). CSS không đổi được bước 72px. Ép dòng thấp hơn thì giữa các dòng
+ * còn khoảng trống, nên mỗi dòng dùng trọn ô 72px: khối bo 56px, hai dòng chữ (tên + giờ).
+ * Chỉ áp trong #column-left; danh sách chat trong popup (chuyển tiếp, chọn người) giữ nguyên. */
+
+/* Nhãn "Gần đây": các dòng nằm absolute từ đỉnh <ul>, nhãn chảy bình thường sẽ bị dòng
+ * đầu đè lên. Đẩy <ul> xuống 32px rồi đặt nhãn vào khoảng đó. Virtual list đo vị trí
+ * <ul> bằng getBoundingClientRect nên margin này không làm lệch phần cuộn. */
+html.tgx-on.tgx-theme-ai #chatlist-container .virtual-chatlist:first-of-type {
+  margin-top: 32px !important;
+}
+html.tgx-on.tgx-theme-ai #chatlist-container .virtual-chatlist:first-of-type::before {
   content: "Gần đây";
-  display: block;
-  padding: 16px 16px 8px;
+  position: absolute;
+  bottom: 100%;
+  inset-inline: 0;
+  padding: 0 12px 8px;
   font: 500 12px/16px var(--tgx-font);
   color: var(--tgx-text-3);
 }
 
-/* Mỗi hội thoại: 1 dòng chữ 14px cao 32px, không avatar/xem trước tin/giờ.
- * Dòng chat của Telegram là .row.row-big: cao tối thiểu 4.5rem và chừa lề trái
- * 4.5rem cho avatar → phải ép cả hai về 0, không thì chữ bị đẩy sang phải. */
-html.tgx-on.tgx-theme-ai .chatlist-chat {
+/* Mỗi ô 72px: khối bo 56px nằm giữa ô (lề trên dưới 8px), nên giữa hai khối luôn hở 16px
+ * như danh sách thẻ, nhìn có chủ đích thay vì "dòng thưa". Bên trong theo sidebar Claude:
+ * chấm tròn nhỏ trước tên, tên 14px, dưới là giờ chữ phụ thẳng mép với tên.
+ * <ul> đã có lề 8px hai bên (.virtual-chatlist) và dòng rộng 100% <ul>, nên không thêm
+ * lề ngang cho dòng. Không đụng top/transform vì JS dùng để đặt và trượt dòng. */
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat {
   --background: transparent !important;
-  height: 32px !important;
+  --tgx-bullet: 8px;
+  --tgx-bullet-gap: 12px;
+  box-sizing: border-box !important;
+  height: 56px !important;
   min-height: 0 !important;
-  margin: 0 8px 2px !important;
-  padding: 0 8px !important;
-  padding-inline-start: 8px !important;
-  transition: background-color 150ms ease-out;
+  margin: 8px 0 !important;
+  padding: 0 12px !important;
   border-radius: 8px !important;
   display: flex !important;
-  align-items: center !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: stretch !important;
+  transition: background-color 150ms ease-out;
 }
-html.tgx-on.tgx-theme-ai .chatlist-chat:hover {
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat:hover {
   background: var(--tgx-hover) !important;
 }
-html.tgx-on.tgx-theme-ai .chatlist-chat.active {
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat.active {
   --background: var(--tgx-active) !important;
   background: var(--tgx-active) !important;
 }
-html.tgx-on.tgx-theme-ai :is(
+/* Ẩn avatar và xem trước tin: không lộ nội dung chat khi nhìn qua màn hình. */
+html.tgx-on.tgx-theme-ai #column-left :is(
   .chatlist-chat .dialog-avatar,
   .chatlist-chat .row-media,
   .chatlist-chat .dialog-subtitle,
-  .chatlist-chat .row-subtitle,
-  .chatlist-chat .dialog-title-details
+  .chatlist-chat .row-subtitle
 ) {
   display: none !important;
 }
-html.tgx-on.tgx-theme-ai .chatlist-chat :is(.row-row, .row-title-row, .dialog-title) {
+/* Hàng "Archived Chats" (archiveDialog.tsx, thẻ <archive-dialog>): dòng phụ là
+ * .row-subtitle-row liệt kê tên các chat lưu trữ, không có class .dialog-subtitle như
+ * dòng thường nên lọt qua luật trên → ẩn theo class của Row. Tiêu đề dùng class CSS
+ * Modules (bị băm) nên bám qua hàng cha. Đối chiếu commit 4cef169d5e16. */
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat .row-subtitle-row {
+  display: none !important;
+}
+html.tgx-on.tgx-theme-ai #column-left archive-dialog .row-title-row > * {
+  font: 400 14px/20px var(--tgx-font) !important;
+  color: var(--tgx-text-2) !important;
+}
+/* Hàng tiêu đề (.row-title-row.dialog-title) chứa tên (.user-title) và giờ
+ * (.dialog-title-details). Grid 2 cột: cột 1 là chấm tròn (::before), cột 2 là tên ở hàng
+ * trên và giờ ở hàng dưới. Không dùng flex-wrap: tên co về 0 cộng giờ 100% vừa khít một
+ * hàng, giờ không xuống dòng và tên bị ép rộng 0 (lỗi mất tên ở chat đã đọc, 0.11.0). */
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat .row-title-row {
+  display: grid !important;
+  grid-template-columns: var(--tgx-bullet) minmax(0, 1fr);
+  column-gap: var(--tgx-bullet-gap);
+  row-gap: 0;
+  align-items: center !important;
   width: 100% !important;
   min-width: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
 }
-html.tgx-on.tgx-theme-ai .chatlist-chat .user-title {
-  display: block !important;
+/* Chấm tròn rỗng như sidebar Claude. Chat chưa đọc: chấm tô màu chính (luật bên dưới). */
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat .row-title-row::before {
+  content: "";
+  grid-column: 1;
+  grid-row: 1;
+  box-sizing: border-box;
+  width: var(--tgx-bullet);
+  height: var(--tgx-bullet);
+  border: 1.5px solid var(--tgx-text-3);
+  border-radius: 50%;
+  opacity: 0.6;
+}
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat .user-title {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0 !important;
   overflow: hidden !important;
   white-space: nowrap !important;
   text-overflow: ellipsis !important;
   font: 400 14px/20px var(--tgx-font) !important;
   color: var(--tgx-text-2) !important;
 }
-html.tgx-on.tgx-theme-ai .chatlist-chat.active .user-title {
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat .dialog-title-details {
+  grid-column: 2;
+  grid-row: 2;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: 4px;
+  /* Khoảng cách tên – giờ đặt bằng margin thay vì row-gap để không phụ thuộc grid.
+   * Chat ghim bị Telegram kéo giờ lên 2px (top: -2px, _chatlist.scss) → đưa về 0. */
+  position: static !important;
+  top: 0 !important;
+  min-width: 0 !important;
+  margin: 6px 0 0 !important;
+  font: 400 12px/16px var(--tgx-font) !important;
+  color: var(--tgx-text-3) !important;
+  opacity: 0.7;
+}
+/* Dấu đã gửi/đã xem cạnh giờ: Telegram để 20px, quá to so với chữ 12px. */
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat .dialog-title-details .message-status {
+  width: 14px !important;
+  height: 14px !important;
+  margin: 0 !important;
+  font-size: 14px !important;
+  line-height: 14px !important;
+}
+/* Chat ghim: Telegram bọc giờ trong viên thuốc có nền. Bỏ nền cho cùng kiểu chữ phụ. */
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat .dialog-time-pill {
+  background: transparent !important;
+  padding: 0 !important;
+}
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat .dialog-title-details * {
+  color: inherit !important;
+  line-height: 16px !important;
+}
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat.active .user-title {
   color: var(--tgx-text) !important;
 }
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat.active .row-title-row::before {
+  border-color: var(--tgx-text);
+  opacity: 0.8;
+}
 /* Icon nhỏ cạnh tên (đã xác minh, tắt tiếng, ghim): làm mờ cho đỡ rối. */
-html.tgx-on.tgx-theme-ai .chatlist-chat .dialog-title :is(.verified-icon, .tgico, .emoji-status) {
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat .dialog-title :is(.verified-icon, .tgico, .emoji-status) {
   opacity: 0.45;
   filter: grayscale(1);
 }
-/* Ẩn xem trước tin thì mất badge chưa đọc → thay bằng tên in đậm + chấm nhỏ. */
-html.tgx-on.tgx-theme-ai .chatlist-chat:has(.dialog-subtitle-badge-unread) .user-title {
+/* Ẩn xem trước tin thì mất badge chưa đọc → tên in đậm, chấm tròn tô màu chính.
+ * Badge còn trong DOM khi đã đọc trong lúc chạy hiệu ứng, nên bám thêm class .unread. */
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat:has(.dialog-subtitle-badge-unread.unread) .user-title {
   font-weight: 600 !important;
   color: var(--tgx-text) !important;
 }
-html.tgx-on.tgx-theme-ai .chatlist-chat:has(.dialog-subtitle-badge-unread) .dialog-title::after {
-  content: "";
-  flex: 0 0 auto;
-  width: 6px;
-  height: 6px;
-  margin-inline-start: 8px;
-  border-radius: 50%;
+html.tgx-on.tgx-theme-ai #column-left .chatlist-chat:has(.dialog-subtitle-badge-unread.unread) .row-title-row::before {
+  border-color: var(--tgx-accent);
   background: var(--tgx-accent);
+  opacity: 1;
 }
 
 /* Nút tạo mới (bút chì nổi góc dưới sidebar): tròn màu chính như nút "đoạn chat mới". */
@@ -345,6 +433,42 @@ html.tgx-on.tgx-theme-ai .chat-input .btn-icon:not(.btn-send) {
 html.tgx-on.tgx-theme-ai .chat-input .btn-send {
   color: var(--tgx-on-accent) !important;
   border-radius: var(--tgx-send-radius) !important;
+}
+
+/* THỬ NGHIỆM: ô nhập hai tầng như app chat AI: chữ ở trên, hàng nút ở dưới, nút gửi
+ * ở góc phải dưới. Lệch bố cục thì xoá cả khối này, ô nhập về lại một hàng.
+ * .new-message-wrapper là một hàng flex: [send-as, lệnh bot, đính kèm] + ô chữ
+ * (.input-message-container) + [nút phụ, emoji] + .btn-send-container
+ * (input.ts, richMessageInput/index.tsx mountAccessories; đối chiếu commit 4cef169d5e16).
+ * Chỉ dùng flex-wrap và order, không dời phần tử nào.
+ * Telegram chừa khoảng dưới danh sách tin theo ô nhập một hàng (chat.ts recomputePaddings,
+ * ghi height inline lên .bubbles-padding-bottom), nên cộng thêm chiều cao hàng nút bằng
+ * padding để tin cuối không bị ô nhập che. */
+html.tgx-on.tgx-theme-ai .chat {
+  --tgx-input-tools: 44px; /* hàng nút cao 40px (2.5rem) + khoảng cách 4px */
+}
+html.tgx-on.tgx-theme-ai .chat-input .new-message-wrapper {
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  row-gap: 4px !important;
+  padding: 12px 8px 8px !important;
+}
+/* Ô chữ chiếm cả hàng trên. Telegram dịch ô chữ sang phải khi có nút send-as hay lệnh bot
+ * đứng trước nó; ở hàng riêng thì không cần nên bỏ phần dịch. */
+html.tgx-on.tgx-theme-ai .chat-input .new-message-wrapper > .input-message-container {
+  order: -1;
+  flex: 1 0 100% !important;
+  box-sizing: border-box !important;
+  padding-inline: 8px !important;
+  margin-inline-end: 0 !important;
+  transform: none !important;
+}
+html.tgx-on.tgx-theme-ai .chat-input .new-message-wrapper > .btn-send-container {
+  margin-inline-start: auto !important;
+}
+html.tgx-on.tgx-theme-ai .chat .bubbles-padding-bottom {
+  box-sizing: content-box !important;
+  padding-bottom: var(--tgx-input-tools) !important;
 }
 
 /* ===================== F. Phần riêng của Telegram, làm cho "hợp" với giao diện chat AI =====================
