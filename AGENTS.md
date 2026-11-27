@@ -22,7 +22,7 @@ review code, chat với AI), ẩn media, thu gọn sidebar, đổi tiêu đề t
    - Hoa văn nền phải tự vẽ bằng SVG.
    - Chữ giả (tiêu đề tab, nhãn) không chứa tên sản phẩm.
 3. **CSS trước, JS tối thiểu (mức 1).**
-   - JS chỉ được làm 4 việc: gắn class lên `<html>`, đổi tiêu đề tab, chặn cú bấm đầu vào media đang ẩn, và thanh nút nổi.
+   - JS chỉ được làm 5 việc: gắn class lên `<html>`, đổi tiêu đề tab, đổi icon tab, chặn cú bấm đầu vào media đang ẩn, và thanh nút nổi.
    - **Không** di chuyển, sắp lại hay xoá DOM của trang. Đó là "mức 2", vỡ mỗi khi trang cập nhật.
 4. **Mọi luật CSS phải có tiền tố `html.tgx-on`** (hoặc class `tgx-*` khác do JS gắn). Nhờ vậy tắt extension là trang về nguyên bản.
 5. **Thứ tự ưu tiên khi chọn cách bám trang:**
@@ -41,7 +41,7 @@ review code, chat với AI), ẩn media, thu gọn sidebar, đổi tiêu đề t
 | Thứ | Có ở |
 | --- | --- |
 | `DEFAULTS` (khoá cài đặt + giá trị mặc định) | `src/content.js`, `popup/popup.js`, id các ô trong `popup/popup.html` |
-| Danh sách kiểu | `THEMES`, `THEME_CLASSES`, `FAKE_TITLES` trong `src/content.js`; `<option>` trong popup; `css` của `manifest.json` |
+| Danh sách kiểu | `THEMES`, `THEME_CLASSES`, `FAKE_TITLES`, `FAKE_ICONS` trong `src/content.js`; `<option>` trong popup; `css` của `manifest.json` |
 | Media cần ẩn và vùng bấm để xem | `themes/hide-media.css` và `MEDIA_CLICK` / `MESSAGE_SCOPE` trong `src/content.js` |
 
 ## 3. Cấu trúc
@@ -65,8 +65,7 @@ themes/telegram-web/{github,ai}.css         từng kiểu: bảng màu, ghi đè
 | `tgx-site-messenger` / `tgx-site-telegram` | Luôn gắn, theo trang |
 | `tgx-on` | Extension bật và đang ở trang chat |
 | `tgx-styled` | `tgx-on` và kiểu khác "Giữ nguyên" (Telegram) |
-| `tgx-theme-<tên>` | Kiểu đang chọn: `telegram`, `github`, `ai`, `ai-neutral` |
-| `tgx-family-ai` | Kiểu bắt đầu bằng `ai`. Bố cục chung của hai biến thể AI |
+| `tgx-theme-<tên>` | Kiểu đang chọn: `telegram`, `github`, `ai` (Claude) |
 | `tgx-wallpaper` | Messenger, bật ảnh nền |
 | `tgx-left-collapsed` | Telegram, sidebar đang thu gọn |
 | `tgx-hide-media` / `tgx-reveal-all` | Đang ẩn media / đang tạm hiện tất cả |
@@ -96,18 +95,23 @@ vẽ lại `className` thì class lạ sẽ mất.
 | 2026-11-27 | Telegram **chỉ hỗ trợ bản K** (`/k/`), bỏ bản A | Người dùng chỉ dùng K. Bản A dùng nhiều class bị băm |
 | 2026-11-27 | Bỏ ảnh nền Telegram bằng cách ẩn `body > div[aria-hidden]:first-child` và làm cột liền mạch | Ảnh nền là lớp dưới cùng của body (`chatBackground.tsx`). Cột bản K có khoảng hở và bo góc nên nền lộ ở mép |
 | 2026-11-27 | Thu gọn sidebar tự làm (`display:none` cột trái) thay vì dùng chế độ "collapsed" có sẵn của Telegram | Chế độ có sẵn chỉ còn avatar, mà kiểu AI lại ẩn avatar, nên sẽ thành cột trống |
-| 2026-11-27 | Hai biến thể AI dùng chung bố cục (`tgx-family-ai`), chỉ khác bảng màu | Thêm hoặc sửa tông không phải chép luật |
+| 2026-11-27 | Kiểu AI bám sát Claude web (màu, kích thước, vị trí nút); vẫn không dùng logo | Người dùng yêu cầu giống bản web thật |
+| 2026-11-27 | Gộp 2 tông AI thành một kiểu Claude; giá trị cũ `ai-neutral` tự đổi sang `ai` | Người dùng chỉ cần kiểu Claude |
+| 2026-11-27 | Ẩn media mặc định bật; Telegram thay media bằng ô "đã ẩn" gọn thay vì làm mờ | Ô mờ to bằng ảnh trông như lỗi và vẫn lộ hình khối |
+| 2026-11-27 | Tin ghim giữ nguyên chiều cao gốc, chỉ đổi dáng | Telegram dùng chiều cao đó để đẩy danh sách tin; đổi là bị chồng |
 
-## 5. Trạng thái triển khai (2026-11-27, bản 0.7.0)
+## 5. Trạng thái triển khai (2026-11-27, bản 0.9.0)
 
 | Phần | Trạng thái |
 | --- | --- |
 | Khung extension, popup, lưu cài đặt | Xong |
-| Telegram K: Review code, Chat AI (2 tông), bỏ ảnh nền, thu gọn sidebar, ẩn media | Selector đã đối chiếu mã nguồn tweb 2026-11-24. **Chưa kiểm trên trang thật** sau lần sửa này |
+| Telegram K: Review code, kiểu Claude, tin ghim, tab thư mục, ô media đã ẩn (0.10.0), bỏ ảnh nền, thu gọn sidebar, ẩn media | Selector đã đối chiếu mã nguồn tweb 2026-11-24. **Chưa kiểm trên trang thật** sau lần sửa này |
 | Messenger: 3 kiểu, ẩn media | Selector **đoán theo hiểu biết**, chưa kiểm DOM thật. Tên biến màu của Meta chưa xác nhận |
 | Messenger: màu riêng cho tin của mình | **Chưa làm.** Cần tìm selector phân biệt (xem `themes/messenger/base.css` mục 4) |
 | Đổi tiêu đề tab | Xong |
-| Đổi favicon | Không làm (trang tự gắn lại) |
+| Kiểu Chat AI bám sát Claude web (0.9.0) | Bảng màu kem/cam đất, sidebar 288px, dòng chat 32px, ô nhập bo 20px, nút gửi vuông bo; nút thu gọn sidebar dạng icon góc trên trái. Số đo theo hiểu biết, chưa đo trực tiếp |
+| Đổi icon tab | Xong (bản 0.8.0). Ghi đè href của `link[rel~=icon]` mỗi 500ms, cất href thật vào `data-tgx-real-href` |
+| Ẩn ảnh preview link (Telegram K) | Thêm `.webpage-preview(-resizer)`, `.webpage-thumb` ở bản 0.8.0, chưa kiểm trên trang thật |
 
 ## 6. Cách làm các việc thường gặp
 

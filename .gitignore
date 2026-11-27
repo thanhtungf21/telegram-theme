@@ -1,0 +1,25 @@
+# Gói extension đóng sẵn. Khoá .pem dùng để ký .crx, lộ ra là người khác ký giả được bản cập nhật.
+*.zip
+*.crx
+*.pem
+
+# Hệ điều hành
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Phòng khi sau này thêm công cụ build/lint
+node_modules/
+dist/
+*.log
+
+# Secret và cài đặt cục bộ của agent
+.env
+.env.*
+.claude/settings.local.json

@@ -27,3 +27,30 @@
 #tgx-toolbar button[hidden] {
   display: none;
 }
+
+/* Nút thu gọn sidebar dạng icon ở góc trên trái (chỉ kiểu chat AI, content.js gắn .tgx-top).
+ * Màu lấy từ bảng màu của kiểu (--tgx-*), có giá trị dự phòng. */
+#tgx-sidebar-toggle.tgx-top {
+  position: fixed;
+  top: 10px;
+  left: 8px;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: var(--tgx-text-3, #73726c);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+#tgx-sidebar-toggle.tgx-top:hover {
+  color: var(--tgx-text, #141413);
+  background: var(--tgx-hover, rgb(0 0 0 / 0.06));
+}
+#tgx-sidebar-toggle[hidden] {
+  display: none;
+}

@@ -9,32 +9,52 @@ const DEFAULTS = {
   enabled: true,
   wallpaper: true,
   theme: "telegram", // kiểu cho Messenger
-  tgTheme: "github", // kiểu cho Telegram K: "github" | "ai" | "ai-neutral" | "off"
+  tgTheme: "github", // kiểu cho Telegram K: "github" | "ai" (Claude) | "off"
   tgSidebar: true, // Telegram K: true = sidebar mở
-  hideMedia: false,
+  hideMedia: true, // mặc định ẩn: mở trang lên là không lộ ảnh
 };
 
 const SITE = location.hostname === "web.telegram.org" ? "telegram" : "messenger";
 const THEMES = {
   messenger: ["telegram", "github", "ai"],
-  telegram: ["github", "ai", "ai-neutral", "off"],
+  telegram: ["github", "ai", "off"],
 };
-const THEME_CLASSES = ["telegram", "github", "ai", "ai-neutral"];
+const THEME_CLASSES = ["telegram", "github", "ai"];
+// Giá trị đã lưu từ bản cũ → đổi sang giá trị hiện tại (ai-neutral gộp vào ai ở 0.10.0).
+const THEME_ALIASES = { "ai-neutral": "ai" };
 
 // Tiêu đề tab giả theo từng kiểu. Kiểu không có ở đây thì giữ tiêu đề thật.
 const FAKE_TITLES = {
   github: "Files changed · refactor/auth-session",
   ai: "Tối ưu truy vấn MongoDB có index",
-  "ai-neutral": "Tối ưu truy vấn MongoDB có index",
 };
 const ALL_FAKE_TITLES = Object.values(FAKE_TITLES);
+
+// Icon tab giả theo từng kiểu: SVG tự vẽ, hình chung chung, không phải logo sản phẩm nào.
+// Kiểu không có ở đây thì giữ icon thật.
+const svgIcon = (svg) => `data:image/svg+xml,${encodeURIComponent(svg)}`;
+const ICON_CODE = svgIcon(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#24292f"/><path d="M12 10l-6 6 6 6M20 10l6 6-6 6" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+);
+const iconChat = (bg) =>
+  svgIcon(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="${bg}"/><path d="M8 10.5a2.5 2.5 0 0 1 2.5-2.5h11a2.5 2.5 0 0 1 2.5 2.5v7a2.5 2.5 0 0 1-2.5 2.5H14l-4 4v-4h0.5A2.5 2.5 0 0 1 8 17.5z" fill="#fff"/><circle cx="12.5" cy="14" r="1.3" fill="${bg}"/><circle cx="16" cy="14" r="1.3" fill="${bg}"/><circle cx="19.5" cy="14" r="1.3" fill="${bg}"/></svg>`,
+  );
+const FAKE_ICONS = {
+  github: ICON_CODE,
+  ai: iconChat("#3d3929"),
+};
 
 // Vùng bấm-để-xem media đang ẩn (xem themes/hide-media.css), và "một tin nhắn"
 // để hiện cả tin khi bấm. Telegram: chỉ trong khung chat (.bubble) — ảnh nhỏ ở
 // sidebar không chặn bấm, vì bấm vào đó là để mở chat.
 const MEDIA_CLICK = {
   messenger: '[role="main"] img:not([src*="emoji.php"]), [role="main"] video',
-  telegram: ".bubble .attachment, .bubble .reply-media, .bubble .media-sticker-wrapper, .bubble .media-photo, .bubble .media-video",
+  telegram: [
+    ".bubble:not(.emoji-big) .attachment", // ô "đã ẩn" của ảnh/video/album/GIF/sticker
+    ".bubble .webpage-preview-resizer", // ô "đã ẩn" của ảnh preview link
+    ".bubble .media-sticker-wrapper",
+  ].join(","),
 };
 const MESSAGE_SCOPE = { messenger: '[role="row"]', telegram: ".bubble" };
 
@@ -54,7 +74,8 @@ function isChatPage() {
 }
 
 function currentTheme() {
-  const value = SITE === "telegram" ? settings.tgTheme : settings.theme;
+  const raw = SITE === "telegram" ? settings.tgTheme : settings.theme;
+  const value = THEME_ALIASES[raw] ?? raw;
   const fallback = SITE === "telegram" ? DEFAULTS.tgTheme : DEFAULTS.theme;
   // Giá trị lạ (vd. "zalo" còn lưu từ bản cũ) → về mặc định thay vì mất hết màu.
   return THEMES[SITE].includes(value) ? value : fallback;
@@ -74,6 +95,38 @@ function disguiseTitle(fake) {
     document.title = unread + fake;
   } else if (showingFake && realTitle) {
     document.title = realTitle;
+  }
+}
+
+// Icon tab cũng lộ y như tiêu đề. Telegram/Meta tự đổi href của thẻ <link rel=icon>
+// (vd. chấm đỏ khi có tin mới), nên cũng ghi đè lại mỗi nhịp. Trước khi ghi đè, cất
+// href thật vào data-tgx-real-href để trả lại khi tắt kiểu.
+// rel~="icon" khớp cả "icon" lẫn "alternate icon", không khớp "apple-touch-icon".
+function disguiseIcon(icon) {
+  const links = [...document.querySelectorAll('link[rel~="icon"]')];
+  if (icon) {
+    if (!document.head) return;
+    if (links.length === 0) {
+      const link = document.createElement("link");
+      link.rel = "icon";
+      link.dataset.tgxCreated = "";
+      document.head.append(link);
+      links.push(link);
+    }
+    for (const link of links) {
+      if (link.href === icon) continue;
+      if (!("tgxCreated" in link.dataset)) link.dataset.tgxRealHref = link.getAttribute("href") ?? "";
+      link.removeAttribute("type"); // type="image/png" sai với SVG → trình duyệt bỏ qua
+      link.href = icon;
+    }
+  } else {
+    for (const link of links) {
+      if ("tgxCreated" in link.dataset) link.remove();
+      else if ("tgxRealHref" in link.dataset) {
+        link.href = link.dataset.tgxRealHref;
+        delete link.dataset.tgxRealHref;
+      }
+    }
   }
 }
 
@@ -161,23 +214,61 @@ function setLabel(button, label) {
   if (button.textContent !== label) button.textContent = label;
 }
 
+// Icon "khung có cột bên trái" cho nút thu gọn sidebar. Dựng bằng createElementNS thay
+// vì innerHTML để không vướng Trusted Types/CSP của trang.
+function sidebarIcon() {
+  const ns = "http://www.w3.org/2000/svg";
+  const el = (tag, attrs) => {
+    const node = document.createElementNS(ns, tag);
+    for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+    return node;
+  };
+  const svg = el("svg", { viewBox: "0 0 20 20", width: "20", height: "20", "aria-hidden": "true" });
+  svg.append(
+    el("rect", { x: "2.75", y: "3.75", width: "14.5", height: "12.5", rx: "2.5", fill: "none", stroke: "currentColor", "stroke-width": "1.5" }),
+    el("path", { d: "M7.5 4v12", stroke: "currentColor", "stroke-width": "1.5" }),
+  );
+  return svg;
+}
+
 function updateToolbar() {
   if (!document.body) return; // document_start: body chưa có, nhịp sau sẽ gắn
   if (!toolbar) {
     toolbar = document.createElement("div");
     toolbar.id = "tgx-toolbar";
     sidebarBtn = makeButton("Thu gọn / mở sidebar (Alt+Shift+S)", toggleSidebar);
+    sidebarBtn.id = "tgx-sidebar-toggle";
     mediaBtn = makeButton("Hiện / ẩn tất cả media (Alt+Shift+M)", toggleRevealAll);
-    toolbar.append(sidebarBtn, mediaBtn);
+    toolbar.append(mediaBtn);
   }
   const on = root.classList.contains("tgx-on");
   const showSidebarBtn = on && SITE === "telegram";
   const showMediaBtn = root.classList.contains("tgx-hide-media");
+  // Kiểu chat AI: nút thu gọn là icon ở góc TRÊN trái như app chat AI (CSS ai.css chừa
+  // chỗ cho nó). Kiểu khác: nút chữ trong thanh góc dưới, vì góc trên trái là nút menu
+  // của Telegram và không có chỗ chừa.
+  const topToggle = root.classList.contains("tgx-theme-ai");
 
   sidebarBtn.hidden = !showSidebarBtn;
+  sidebarBtn.classList.toggle("tgx-top", topToggle);
+  if (topToggle) {
+    if (sidebarBtn.dataset.mode !== "icon") {
+      sidebarBtn.replaceChildren(sidebarIcon());
+      sidebarBtn.dataset.mode = "icon";
+    }
+    if (sidebarBtn.parentElement !== document.body) document.body.append(sidebarBtn);
+  } else {
+    if (sidebarBtn.dataset.mode !== "text") {
+      sidebarBtn.textContent = "";
+      sidebarBtn.dataset.mode = "text";
+    }
+    setLabel(sidebarBtn, settings.tgSidebar ? "☰ Ẩn sidebar" : "☰ Hiện sidebar");
+    if (sidebarBtn.parentElement !== toolbar) toolbar.prepend(sidebarBtn);
+  }
+
   mediaBtn.hidden = !showMediaBtn;
-  toolbar.hidden = !showSidebarBtn && !showMediaBtn;
-  setLabel(sidebarBtn, settings.tgSidebar ? "☰ Ẩn sidebar" : "☰ Hiện sidebar");
+  const toolbarHasButton = (showSidebarBtn && !topToggle) || showMediaBtn;
+  toolbar.hidden = !toolbarHasButton;
   setLabel(mediaBtn, root.classList.contains("tgx-reveal-all") ? "Ẩn media" : "Hiện media");
   if (!toolbar.isConnected) document.body.append(toolbar);
 }
@@ -195,9 +286,6 @@ function apply() {
   root.classList.toggle("tgx-styled", styled);
   root.classList.toggle("tgx-wallpaper", on && SITE === "messenger" && settings.wallpaper);
   for (const t of THEME_CLASSES) root.classList.toggle(`tgx-theme-${t}`, on && t === theme);
-  // Hai biến thể "ai" (ấm / trung tính) dùng chung bố cục, chỉ khác bảng màu:
-  // luật bố cục bám tgx-family-ai, bảng màu bám tgx-theme-<tên>.
-  root.classList.toggle("tgx-family-ai", on && theme.startsWith("ai"));
   root.classList.toggle("tgx-left-collapsed", on && SITE === "telegram" && !settings.tgSidebar);
   root.classList.toggle("tgx-hide-media", hide);
 
@@ -207,6 +295,7 @@ function apply() {
 
   updateToolbar();
   disguiseTitle(on ? (FAKE_TITLES[theme] ?? null) : null);
+  disguiseIcon(on ? (FAKE_ICONS[theme] ?? null) : null);
 }
 
 chrome.storage.sync.get(DEFAULTS, (saved) => {

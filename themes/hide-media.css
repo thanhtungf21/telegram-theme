@@ -1,44 +1,145 @@
 /*
- * Công tắc "Ẩn ảnh, sticker, preview link" — dùng chung cho Messenger và Telegram K,
- * độc lập với kiểu giao diện đang chọn.
+ * Công tắc "Ẩn ảnh, sticker, preview link" (mặc định BẬT) — dùng chung cho Messenger
+ * và Telegram K, độc lập với kiểu giao diện đang chọn.
  *
- * Ẩn bằng filter (làm mờ rất mạnh) thay vì display:none: giữ nguyên chỗ trống nên
- * khung chat không nhảy, và dùng được cho cả <img>/<video>/<canvas> lẫn khối bọc.
- * Bấm vào media trong một tin → JS gắn data-tgx-revealed lên CẢ TIN đó → hiện cả tin
- * (một tin có thể có nhiều lớp ảnh: thumbnail mờ + ảnh thật + spoiler).
+ * Bấm vào media đang ẩn → JS gắn data-tgx-revealed lên CẢ TIN đó → hiện cả tin
+ * (một ảnh có nhiều lớp: thumbnail mờ + ảnh thật + spoiler, hiện một lớp không đủ).
  * Nút "Hiện media" (hoặc Alt+Shift+M) → class tgx-reveal-all → hiện hết.
  *
  * VÙNG BẤM-ĐỂ-XEM nằm ở MEDIA_CLICK trong src/content.js — sửa ở đây thì xem lại ở đó.
  */
 
-/* Messenger: không có class ổn định → ẩn mọi ảnh/video trong khung chat, trừ emoji
- * (Facebook vẽ emoji bằng ảnh từ emoji.php — ẩn thì mất cả emoji trong chữ). */
+/* ===================== Messenger =====================
+ * Không có class ổn định để biết loại media → làm mờ rất mạnh tại chỗ (giữ nguyên
+ * kích thước, khung chat không nhảy). Trừ emoji (Facebook vẽ emoji bằng ảnh emoji.php). */
 html.tgx-hide-media.tgx-site-messenger:not(.tgx-reveal-all)
-  :is([role="main"] img:not([src*="emoji.php"]), [role="main"] video):not([data-tgx-revealed], [data-tgx-revealed] *),
-
-/* Telegram K: bám class của chính phần tử media (đã đối chiếu mã nguồn tweb),
- * không bám khối bọc — vì cùng một ảnh xuất hiện ở nhiều chỗ: tin nhắn, ảnh trong
- * preview link, ảnh nhỏ trong trích dẫn trả lời, ảnh nhỏ cạnh tên chat ở sidebar,
- * tin ghim trên đầu chat.
- * Trừ avatar (component avatar đổi media-photo → avatar-photo, bọc trong .avatar-relative)
- * và emoji tuỳ biến (.custom-emoji). */
-html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all) #page-chats
-  :is(
-    .media-photo,
-    .media-video,
-    .media-video-container,
-    .media-poster,
-    .media-round,
-    .media-gif-wrapper,
-    .media-sticker,
-    .media-sticker-wrapper,
-    .media-spoiler-container,
-    .thumbnail,
-    .reply-media,
-    .dialog-subtitle-media
-  ):not([class^="avatar-"], .avatar-relative *, .custom-emoji, .custom-emoji *, [data-tgx-revealed], [data-tgx-revealed] *) {
+  :is([role="main"] img:not([src*="emoji.php"]), [role="main"] video):not([data-tgx-revealed], [data-tgx-revealed] *) {
   filter: blur(28px) grayscale(1) opacity(0.12) !important;
   outline: 1px dashed currentColor;
   outline-offset: -1px;
   cursor: zoom-in;
+}
+
+/* ===================== Telegram K =====================
+ * Thay media bằng một Ô "đã ẩn" gọn (icon + nhãn theo loại + "Bấm để xem") thay vì
+ * làm mờ: ô mờ to bằng ảnh thật trông như lỗi hiển thị và vẫn lộ màu/hình khối.
+ * Selector đã đối chiếu mã nguồn tweb (commit 2026-11-24):
+ *   - loại tin: .bubble.photo / .video (gồm GIF) / .round / .sticker / .is-album, .emoji-big
+ *   - khối media trong tin: .attachment; ảnh preview link: .webpage-preview-resizer
+ *   - ảnh nhỏ: .webpage-thumb (preview link), .reply-media (trích dẫn trả lời),
+ *     .dialog-subtitle-media (sidebar), .pinned-message-media (tin ghim)
+ * Màu lấy từ bảng màu của kiểu đang chọn (--tgx-*), có giá trị dự phòng khi "Giữ nguyên".
+ */
+
+html.tgx-site-telegram {
+  --tgx-chip-bg: var(--tgx-hover, rgb(127 127 127 / 0.12));
+  --tgx-chip-bg-hover: var(--tgx-active, rgb(127 127 127 / 0.2));
+  --tgx-chip-border: var(--tgx-divider, rgb(127 127 127 / 0.3));
+  --tgx-chip-text: var(--tgx-text-2, currentColor);
+  /* Icon nét mảnh, màu xám trung tính đọc được ở cả nền sáng lẫn tối. */
+  --tgx-icon-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3.5' width='14' height='13' rx='2.5'/%3E%3Ccircle cx='7.5' cy='8' r='1.5'/%3E%3Cpath d='M3.5 14.5l4-4 3 3 2.5-2.5 3.5 3.5'/%3E%3C/svg%3E");
+  --tgx-icon-play: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3.5' width='14' height='13' rx='2.5'/%3E%3Cpath d='M8.5 7.5v5l4-2.5z'/%3E%3C/svg%3E");
+}
+
+/* Nhãn + icon theo loại tin. content: var(--…) nhận được chuỗi. */
+html.tgx-site-telegram .bubble { --tgx-chip-label: "Media đã ẩn"; --tgx-chip-icon: var(--tgx-icon-image); }
+html.tgx-site-telegram .bubble.photo { --tgx-chip-label: "Ảnh đã ẩn"; }
+html.tgx-site-telegram .bubble.is-album { --tgx-chip-label: "Album ảnh đã ẩn"; }
+html.tgx-site-telegram .bubble.video { --tgx-chip-label: "Video đã ẩn"; --tgx-chip-icon: var(--tgx-icon-play); }
+html.tgx-site-telegram .bubble.round { --tgx-chip-label: "Video tròn đã ẩn"; --tgx-chip-icon: var(--tgx-icon-play); }
+html.tgx-site-telegram .bubble.sticker { --tgx-chip-label: "Sticker đã ẩn"; }
+html.tgx-site-telegram .bubble .webpage-preview-resizer { --tgx-chip-label: "Ảnh xem trước link đã ẩn"; --tgx-chip-icon: var(--tgx-icon-image); }
+
+/* ---------- 1. Ảnh / video / album / GIF / video tròn / ảnh preview link: thu về ô gọn ----------
+ * Telegram ghi kích thước inline lên khối media → cần !important để thu về kích thước ô. */
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all)
+  .bubble:not([data-tgx-revealed]):not(.sticker):not(.emoji-big) .attachment,
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all)
+  .bubble:not([data-tgx-revealed]) .webpage-preview-resizer {
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  margin: 4px 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  overflow: visible !important;
+  border-radius: 0 !important;
+  cursor: pointer;
+}
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all)
+  .bubble:not([data-tgx-revealed]):not(.sticker):not(.emoji-big) .attachment > *,
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all)
+  .bubble:not([data-tgx-revealed]) .webpage-preview-resizer > * {
+  display: none !important;
+}
+
+/* Ô "đã ẩn": cao 36px, bo 8px, viền mảnh, icon trái — như ô tệp đính kèm của app chat AI. */
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all)
+  .bubble:not([data-tgx-revealed]):not(.sticker):not(.emoji-big) .attachment::before,
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all)
+  .bubble:not([data-tgx-revealed]) .webpage-preview-resizer::before,
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all)
+  .bubble.sticker:not([data-tgx-revealed]) .attachment::after {
+  content: var(--tgx-chip-label) "  ·  Bấm để xem";
+  white-space: pre;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 36px;
+  padding: 0 12px 0 36px;
+  font: 500 13px/1 ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  color: var(--tgx-chip-text);
+  background: var(--tgx-chip-icon) no-repeat 10px center / 18px 18px, var(--tgx-chip-bg);
+  border: 0.5px solid var(--tgx-chip-border);
+  border-radius: 8px;
+  transition: background-color 150ms ease-out;
+}
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all)
+  .bubble:not([data-tgx-revealed]):not(.sticker):not(.emoji-big) .attachment:hover::before,
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all)
+  .bubble:not([data-tgx-revealed]) .webpage-preview-resizer:hover::before,
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all)
+  .bubble.sticker:not([data-tgx-revealed]) .attachment:hover::after {
+  background: var(--tgx-chip-icon) no-repeat 10px center / 18px 18px, var(--tgx-chip-bg-hover);
+}
+
+/* ---------- 2. Sticker: giữ chỗ, ô đặt ở góc trên ----------
+ * Khối sticker là position:absolute với kích thước do JS tính (_chatBubble.scss
+ * `&.sticker .attachment`), thu nhỏ sẽ làm lệch tin → chỉ giấu nội dung, giữ chỗ. */
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all)
+  .bubble.sticker:not([data-tgx-revealed]) .attachment {
+  cursor: pointer;
+}
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all)
+  .bubble.sticker:not([data-tgx-revealed]) .attachment > * {
+  visibility: hidden !important;
+}
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all)
+  .bubble.sticker:not([data-tgx-revealed]) .attachment::after {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  z-index: 1;
+}
+
+/* ---------- 3. Ảnh nhỏ: ẩn hẳn, không cần ô (chữ đi kèm đã đủ nghĩa) ---------- */
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all)
+  .bubble:not([data-tgx-revealed]) :is(.webpage-thumb, .reply-media),
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all)
+  #page-chats :is(.dialog-subtitle-media, .pinned-message-media) {
+  display: none !important;
+}
+
+/* ---------- 4. Media lẻ còn sót (dịch vụ, game, story…): làm mờ tại chỗ ----------
+ * Lưới an toàn cho chỗ chưa có ô riêng. Trừ avatar (component avatar đổi
+ * media-photo → avatar-photo, bọc trong .avatar-relative) và emoji tuỳ biến. */
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all) #page-chats
+  :is(.media-photo, .media-video, .media-round, .media-gif-wrapper, .media-sticker, .thumbnail):not(
+    [class^="avatar-"], .avatar-relative *, .custom-emoji, .custom-emoji *, .emoji-big *, [data-tgx-revealed] *
+  ) {
+  filter: blur(28px) grayscale(1) opacity(0.12) !important;
 }
