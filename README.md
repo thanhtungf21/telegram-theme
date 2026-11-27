@@ -13,7 +13,7 @@ và nút **thu gọn sidebar** cho Telegram.
 | Trang | Kiểu có sẵn |
 | --- | --- |
 | `messenger.com` và `facebook.com/messages/…` | Telegram · Review code · Chat với AI |
-| `web.telegram.org/k/` (**chỉ bản K**) | Review code · Kiểu Claude (chat với AI) · Giữ nguyên |
+| `web.telegram.org/k/` (**chỉ bản K**) | Review code · Chat với AI · Giữ nguyên |
 
 Bản `web.telegram.org/a/` **không** được hỗ trợ. Hãy chuyển sang `/k/` trong cài đặt của Telegram.
 News Feed của Facebook không bị ảnh hưởng.
@@ -59,12 +59,13 @@ Bấm lần nữa mới mở như bình thường.
 
 **Chat với AI** (đầy đủ trên Telegram K):
 - Sidebar thành "lịch sử hội thoại": có nhãn "Gần đây", mỗi chat chỉ một dòng, không avatar, không xem trước tin. Chat chưa đọc in đậm kèm một chấm.
-- Thanh đầu chat phẳng, tên chat có dấu ▾ như ô chọn model.
-- Tin nhắn nằm trong một cột giữa rộng 768px. Tin người khác là chữ trơn, tin của mình là khối xám bo tròn.
-- Ô nhập bo tròn, nút gửi tròn màu đậm, có dòng nhắc nhỏ bên dưới.
-- Một bảng màu kiểu Claude: nền kem, nút cam đất, câu trả lời chữ serif. Tin ghim, tab thư mục, ngày phân cách được làm nhạt cho hợp bố cục; story bị ẩn.
+- Thanh đầu chat phẳng, hiển thị tên cuộc hội thoại.
+- Tin nhắn và ô nhập thẳng hàng trong cột giữa rộng tối đa 768px. Tin nhận dùng chữ serif, tin gửi có nền riêng và bo góc.
+- Nền kem ở chế độ sáng, nền xám ấm ở chế độ tối. Ô nhập bo 20px, nút gửi vuông bo màu cam đất.
+- Nút thu gọn sidebar ở góc trên trái trên cửa sổ rộng. Trên cửa sổ hẹp, nút nằm trong thanh dưới.
+- Tin ghim, tab thư mục và ngày phân cách được làm nhạt cho hợp bố cục. Theme ẩn dải story.
 - Tiêu đề tab: `Tối ưu truy vấn MongoDB có index`.
-- Trên Messenger chỉ đổi màu, font, nền và cột giữa.
+- Trên Messenger dùng cùng tông ấm cho màu, font và nền, với bố cục cột giữa hiện có.
 
 **Telegram** (chỉ cho Messenger): màu, bong bóng và nền hoa văn kiểu Telegram.
 
@@ -80,7 +81,7 @@ Mọi kiểu đều theo chế độ sáng/tối mà bạn đang chọn trong Fa
   - Nhiều phần trên Messenger chưa được kiểm trên trang thật.
 - **Telegram K:**
   - Selector được đối chiếu với mã nguồn tweb ngày 2026-11-24. Telegram cập nhật thì có thể lệch.
-  - Các khối đánh dấu `THỬ NGHIỆM` trong CSS là số dòng, dòng nhắc dưới ô nhập và câu trả lời trải hết bề ngang. Khối nào làm lệch bố cục thì xoá đúng khối đó.
+  - Các khối `THỬ NGHIỆM` có thể gỡ riêng nếu gây lệch bố cục.
 
 ## Giấy phép
 
@@ -90,3 +91,4 @@ MIT. Xem [LICENSE](LICENSE).
 
 Đọc [AGENTS.md](AGENTS.md) để biết cấu trúc, quy tắc và các quyết định thiết kế.
 Thêm kiểu mới, sửa selector hay thêm trang mới đều có hướng dẫn trong đó.
+Phạm vi và tiêu chí kiểm tra theme Chat với AI nằm trong [kế hoạch chỉnh theme](docs/ai-theme-plan.md).

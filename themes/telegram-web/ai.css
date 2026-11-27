@@ -2,11 +2,12 @@
  * Telegram Web K — kiểu "Claude" (giao diện chat với trợ lý AI).
  * Nền, cột liền mạch, thu gọn sidebar nằm ở base.css; ẩn media ở hide-media.css.
  * Mọi luật bám html.tgx-theme-ai.
- * Selector đã đối chiếu mã nguồn tweb (commit 2026-11-24).
+ * Selector đã đối chiếu mã nguồn tweb ngày 2026-11-24. Các thay đổi bố cục,
+ * ô nhập và thanh ghim đối chiếu thêm ở commit 4cef169d5e16.
  * Chỉ mô phỏng bố cục, màu, cỡ chữ của app chat AI; không dùng logo, tên sản phẩm hay icon.
  *
- * Số đo (màu, bề rộng sidebar, cỡ chữ, bo góc) lấy theo hiểu biết về giao diện web
- * của các app chat AI, CHƯA đo trực tiếp trên trang của họ → chỉnh ở mục A nếu lệch.
+ * Bảng màu, cỡ chữ và bo góc chỉnh ở mục A. Chiều rộng sidebar do Telegram quản lý
+ * để thao tác kéo giãn và bố cục nhiều cột dùng chung một số đo.
  */
 
 /* ===================== A. Bảng màu + số đo ===================== */
@@ -22,9 +23,9 @@ html.tgx-on.tgx-theme-ai {
   --tgx-input: #ffffff;       /* ô nhập */
   --tgx-text: #141413;
   --tgx-text-2: #3d3d3a;      /* chữ dòng sidebar */
-  --tgx-text-3: #73726c;      /* chữ phụ, nhãn "Gần đây", icon */
+  --tgx-text-3: #65645e;      /* chữ phụ, nhãn "Gần đây", icon */
   --tgx-divider: rgb(31 30 29 / 0.15);
-  --tgx-accent: #d97757;      /* nút gửi, nút tạo mới */
+  --tgx-accent: #a94e34;      /* đủ tương phản với chữ trắng trên nút */
   --tgx-on-accent: #ffffff;
   --tgx-send-radius: 8px;     /* nút gửi vuông bo */
   --tgx-input-radius: 20px;
@@ -43,6 +44,8 @@ html.tgx-on.tgx-theme-ai.night {
   --tgx-text: #faf9f5;
   --tgx-text-2: #c2c0b6;
   --tgx-text-3: #9c9a92;
+  --tgx-accent: #dc8b70;
+  --tgx-on-accent: #141413;
   --tgx-divider: rgb(222 220 209 / 0.15);
   --tgx-input-shadow: 0 0.25rem 1.25rem rgb(0 0 0 / 0.15), 0 0 0 0.5px rgb(222 220 209 / 0.15);
 }
@@ -50,7 +53,9 @@ html.tgx-on.tgx-theme-ai.night {
 html.tgx-on.tgx-theme-ai {
   --tgx-font: ui-sans-serif, -apple-system, "Segoe UI", "Inter", "Noto Sans", Helvetica, Arial, sans-serif;
   --tgx-col: 768px;    /* bề rộng cột chat ở giữa (48rem) */
-  --tgx-side: 288px;   /* bề rộng sidebar (18rem) */
+  --tgx-gutter: clamp(8px, 2vw, 16px);
+  /* Dùng giới hạn của Telegram để vừa phần khung chat trong bố cục hiện tại. */
+  --tgx-chat-width: min(var(--tgx-col), var(--chat-width, var(--tgx-col)));
 }
 
 /* ===================== B. Ghi đè biến màu của Telegram =====================
@@ -59,6 +64,7 @@ html.tgx-on.tgx-theme-ai {
 html.tgx-on.tgx-theme-ai,
 html.tgx-on.tgx-theme-ai .chat {
   --primary-color: var(--tgx-accent) !important;
+  --dark-primary-color: color-mix(in srgb, var(--tgx-accent), var(--tgx-text) 12%) !important;
   --background-color: var(--tgx-bg) !important;
   --body-background-color: var(--tgx-bg) !important;
   --surface-color: var(--tgx-sidebar) !important;
@@ -84,12 +90,9 @@ html.tgx-on.tgx-theme-ai body {
 
 /* ===================== C. Sidebar = "lịch sử hội thoại" ===================== */
 
-/* Bề rộng: Telegram tự tính bằng JS (--left-column-visual-width, cho kéo giãn được);
- * ép về 288px cho giống, kéo giãn sẽ không còn tác dụng. */
+/* Telegram dùng cùng số đo sidebar để đặt cột giữa và panel bên phải. */
 html.tgx-on.tgx-theme-ai #column-left {
-  flex: 0 0 var(--tgx-side) !important;
-  width: var(--tgx-side) !important;
-  min-width: var(--tgx-side) !important;
+  margin-inline-start: var(--folders-sidebar-offset, 0px) !important;
   background: var(--tgx-sidebar) !important;
   border-right: 0.5px solid var(--tgx-divider) !important;
 }
@@ -99,12 +102,15 @@ html.tgx-on.tgx-theme-ai :is(#column-left .chatlist, #column-left .sidebar-conte
   box-shadow: none !important;
 }
 
-/* Hàng đầu sidebar: chừa 44px bên trái cho nút thu gọn (content.js đặt cố định
- * ở góc trên trái), nút menu của Telegram và ô tìm kiếm dồn sang phải. */
-html.tgx-on.tgx-theme-ai #column-left .sidebar-header {
-  min-height: 52px !important;
-  padding-inline-start: 48px !important;
-  padding-inline-end: 8px !important;
+/* Chừa chỗ cho nút góc trên ở màn hình có sidebar cố định. Các trang con
+ * của sidebar cần giữ chỗ cho nút quay lại và nút thao tác của Telegram. */
+@media (min-width: 926px) {
+  html.tgx-on.tgx-theme-ai #column-left .item-main .sidebar-header {
+    padding-inline-start: 48px !important;
+  }
+  html.tgx-on.tgx-theme-ai.tgx-left-collapsed .chat .topbar .chat-info-container {
+    padding-inline-start: 48px !important;
+  }
 }
 html.tgx-on.tgx-theme-ai #column-left .input-search {
   height: 32px !important;
@@ -214,13 +220,11 @@ html.tgx-on.tgx-theme-ai :is(.chats-container, .chat) {
   background: transparent !important;
 }
 
-/* Thanh đầu chat: trong suốt, cao 48px, tên 14px kèm ▾ như ô chọn model,
- * không avatar, không "đang hoạt động", icon bên phải màu nhạt. */
+/* Giữ chiều cao Telegram dùng để đặt vùng cuộn bên dưới thanh đầu chat. */
 html.tgx-on.tgx-theme-ai .chat .topbar {
   background: var(--tgx-bg) !important;
   border: 0 !important;
   box-shadow: none !important;
-  min-height: 48px !important;
 }
 html.tgx-on.tgx-theme-ai :is(.topbar .person-avatar, .topbar .bottom .info) {
   display: none !important;
@@ -229,27 +233,16 @@ html.tgx-on.tgx-theme-ai .topbar .content .top .user-title {
   font: 500 14px/20px var(--tgx-font) !important;
   color: var(--tgx-text-2) !important;
 }
-html.tgx-on.tgx-theme-ai .topbar .content .top .user-title::after {
-  content: " ⌄";
-  color: var(--tgx-text-3);
-  font-size: 13px;
-}
 html.tgx-on.tgx-theme-ai .topbar .btn-icon {
   color: var(--tgx-text-3) !important;
 }
-/* Sidebar thu gọn → nút thu gọn nằm đè góc trái thanh đầu chat, chừa chỗ cho nó. */
-html.tgx-on.tgx-theme-ai.tgx-left-collapsed .chat .topbar {
-  padding-inline-start: 48px !important;
-}
-
-/* Một cột chữ ở giữa. */
+/* Chung bề rộng và lề với ô nhập để hai mép thẳng hàng. */
 html.tgx-on.tgx-theme-ai .bubbles-inner {
-  max-width: var(--tgx-col) !important;
+  max-width: var(--tgx-chat-width) !important;
   width: 100% !important;
   margin-left: auto !important;
   margin-right: auto !important;
-  padding-left: 16px !important;
-  padding-right: 16px !important;
+  padding-inline: var(--tgx-gutter) !important;
   box-sizing: border-box !important;
 }
 
@@ -258,10 +251,11 @@ html.tgx-on.tgx-theme-ai :is(.bubble-tail, .bubbles-group-avatar-container) {
   display: none !important;
 }
 
-/* Tin người khác = "câu trả lời": chữ trơn, chiếm hết bề ngang cột. */
+/* THỬ NGHIỆM: bỏ lề avatar để tin nhận bắt đầu cùng mép ô nhập. */
 html.tgx-on.tgx-theme-ai .bubble.is-in .bubble-content-wrapper {
   max-width: 100% !important;
   width: 100% !important;
+  margin-inline-start: 0 !important;
 }
 html.tgx-on.tgx-theme-ai .bubble.is-in .bubble-content {
   max-width: 100% !important;
@@ -269,7 +263,7 @@ html.tgx-on.tgx-theme-ai .bubble.is-in .bubble-content {
   box-shadow: none !important;
   border: 0 !important;
   border-radius: 0 !important;
-  padding-left: 0 !important;
+  padding-inline-start: 0 !important;
 }
 html.tgx-on.tgx-theme-ai .bubble.is-in .message {
   font-family: var(--tgx-reply-font) !important;
@@ -320,12 +314,11 @@ html.tgx-on.tgx-theme-ai .chat-input {
   background: var(--tgx-bg) !important;
 }
 html.tgx-on.tgx-theme-ai .chat-input-container {
-  max-width: var(--tgx-col) !important;
+  --padding-horizontal: var(--tgx-gutter) !important;
+  max-width: var(--tgx-chat-width) !important;
   width: 100% !important;
   margin-left: auto !important;
   margin-right: auto !important;
-  padding-left: 16px !important;
-  padding-right: 16px !important;
   box-sizing: border-box !important;
 }
 html.tgx-on.tgx-theme-ai .rows-wrapper.chat-input-wrapper {
@@ -348,26 +341,10 @@ html.tgx-on.tgx-theme-ai .chat-input .btn-icon:not(.btn-send) {
   color: var(--tgx-text-3) !important;
 }
 
-/* Nút gửi: vuông bo 8px màu cam đất. */
+/* Giữ kích thước gốc cho cả các trạng thái gửi, ghi âm và sửa tin. */
 html.tgx-on.tgx-theme-ai .chat-input .btn-send {
-  width: 32px !important;
-  height: 32px !important;
-  background: var(--tgx-accent) !important;
   color: var(--tgx-on-accent) !important;
   border-radius: var(--tgx-send-radius) !important;
-  box-shadow: none !important;
-}
-
-/* Dòng nhắc nhỏ dưới ô nhập. THỬ NGHIỆM: chữ chen ngang ô nhập thì xoá khối này. */
-html.tgx-on.tgx-theme-ai .chat-input::after {
-  content: "AI có thể mắc lỗi. Hãy kiểm tra lại các câu trả lời.";
-  display: block;
-  width: 100%;
-  padding: 8px 0 10px;
-  text-align: center;
-  font: 12px/16px var(--tgx-font);
-  color: var(--tgx-text-3);
-  pointer-events: none;
 }
 
 /* ===================== F. Phần riêng của Telegram, làm cho "hợp" với giao diện chat AI =====================
@@ -425,24 +402,23 @@ html.tgx-on.tgx-theme-ai #folders-tabs .badge {
  * topbarPlate.tsx: .pinned-container-wrapper/-content/-title/-subtitle/-close) ---
  * GIỮ NGUYÊN chiều cao (--pinned-container-height = 3rem): Telegram dùng biến này để
  * đẩy danh sách tin xuống; đổi chiều cao/margin dọc là tin bị chồng lên thanh ghim.
- * Chỉ đổi dáng: thành một banner nhạt, bo góc, nằm trong cột 768px như khối thông báo. */
+ * Viền và lề ngang theo cột chat để thanh ghim thẳng hàng với ô nhập. */
 html.tgx-on.tgx-theme-ai .chat .pinned-container {
   background: var(--tgx-bg) !important;
   box-shadow: none !important;
   border: 0 !important;
-  padding: 4px 16px !important;
 }
-html.tgx-on.tgx-theme-ai .chat .pinned-message .pinned-container-wrapper,
+html.tgx-on.tgx-theme-ai .chat .pinned-message {
+  padding-inline: var(--tgx-gutter) !important;
+}
 html.tgx-on.tgx-theme-ai .chat .pinned-message .pinned-message-wrapper {
-  max-width: calc(var(--tgx-col) - 32px);
+  max-width: calc(var(--tgx-chat-width) - 2 * var(--tgx-gutter));
   margin-inline: auto;
-  padding: 0 12px !important;
   border-radius: 10px;
   background: var(--tgx-sidebar);
   border: 0.5px solid var(--tgx-divider);
   transition: background-color 150ms ease-out;
 }
-html.tgx-on.tgx-theme-ai .chat .pinned-message .pinned-container-wrapper:hover,
 html.tgx-on.tgx-theme-ai .chat .pinned-message .pinned-message-wrapper:hover {
   background: var(--tgx-hover);
 }

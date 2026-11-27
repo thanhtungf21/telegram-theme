@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Chat Theme (Messenger, Telegram Web K)",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Đổi giao diện Messenger web và Telegram Web K theo phong cách Telegram, trang review code hoặc app chat AI, kèm ẩn ảnh/sticker/preview link và thu gọn sidebar. Chỉ đổi giao diện, không đọc tin nhắn.",
   "permissions": ["storage"],
   "action": {

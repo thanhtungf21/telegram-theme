@@ -19,6 +19,8 @@ const THEMES = {
   messenger: ["telegram", "github", "ai"],
   telegram: ["github", "ai", "off"],
 };
+// Từ 926px Telegram đặt sidebar cạnh khung chat, xem ai.css.
+const DOCKED_SIDEBAR = SITE === "telegram" && matchMedia("(min-width: 926px)");
 const THEME_CLASSES = ["telegram", "github", "ai"];
 // Giá trị đã lưu từ bản cũ → đổi sang giá trị hiện tại (ai-neutral gộp vào ai ở 0.10.0).
 const THEME_ALIASES = { "ai-neutral": "ai" };
@@ -44,6 +46,7 @@ const FAKE_ICONS = {
   github: ICON_CODE,
   ai: iconChat("#3d3929"),
 };
+const ALL_FAKE_ICONS = Object.values(FAKE_ICONS);
 
 // Vùng bấm-để-xem media đang ẩn (xem themes/hide-media.css), và "một tin nhắn"
 // để hiện cả tin khi bấm. Telegram: chỉ trong khung chat (.bubble) — ảnh nhỏ ở
@@ -100,7 +103,8 @@ function disguiseTitle(fake) {
 
 // Icon tab cũng lộ y như tiêu đề. Telegram/Meta tự đổi href của thẻ <link rel=icon>
 // (vd. chấm đỏ khi có tin mới), nên cũng ghi đè lại mỗi nhịp. Trước khi ghi đè, cất
-// href thật vào data-tgx-real-href để trả lại khi tắt kiểu.
+// href và type thật để trả lại khi tắt kiểu. Khi chuyển kiểu, không lấy icon giả
+// đã gắn làm icon thật.
 // rel~="icon" khớp cả "icon" lẫn "alternate icon", không khớp "apple-touch-icon".
 function disguiseIcon(icon) {
   const links = [...document.querySelectorAll('link[rel~="icon"]')];
@@ -115,7 +119,10 @@ function disguiseIcon(icon) {
     }
     for (const link of links) {
       if (link.href === icon) continue;
-      if (!("tgxCreated" in link.dataset)) link.dataset.tgxRealHref = link.getAttribute("href") ?? "";
+      if (!("tgxCreated" in link.dataset) && !ALL_FAKE_ICONS.includes(link.href)) {
+        link.dataset.tgxRealHref = link.getAttribute("href") ?? "";
+        if (link.hasAttribute("type")) link.dataset.tgxRealType = link.getAttribute("type");
+      }
       link.removeAttribute("type"); // type="image/png" sai với SVG → trình duyệt bỏ qua
       link.href = icon;
     }
@@ -123,8 +130,12 @@ function disguiseIcon(icon) {
     for (const link of links) {
       if ("tgxCreated" in link.dataset) link.remove();
       else if ("tgxRealHref" in link.dataset) {
-        link.href = link.dataset.tgxRealHref;
+        link.setAttribute("href", link.dataset.tgxRealHref);
         delete link.dataset.tgxRealHref;
+        if ("tgxRealType" in link.dataset) {
+          link.setAttribute("type", link.dataset.tgxRealType);
+          delete link.dataset.tgxRealType;
+        }
       }
     }
   }
@@ -244,10 +255,9 @@ function updateToolbar() {
   const on = root.classList.contains("tgx-on");
   const showSidebarBtn = on && SITE === "telegram";
   const showMediaBtn = root.classList.contains("tgx-hide-media");
-  // Kiểu chat AI: nút thu gọn là icon ở góc TRÊN trái như app chat AI (CSS ai.css chừa
-  // chỗ cho nó). Kiểu khác: nút chữ trong thanh góc dưới, vì góc trên trái là nút menu
-  // của Telegram và không có chỗ chừa.
-  const topToggle = root.classList.contains("tgx-theme-ai");
+  // Trên cửa sổ hẹp, góc trên trái cần dành cho nút quay lại của Telegram.
+  const topToggle = showSidebarBtn && DOCKED_SIDEBAR.matches && root.classList.contains("tgx-theme-ai");
+  sidebarBtn.setAttribute("aria-expanded", String(settings.tgSidebar));
 
   sidebarBtn.hidden = !showSidebarBtn;
   sidebarBtn.classList.toggle("tgx-top", topToggle);

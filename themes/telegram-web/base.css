@@ -63,6 +63,10 @@ html.tgx-on.tgx-styled .folders-sidebar__background {
 html.tgx-on.tgx-left-collapsed :is(#column-left, .folders-sidebar) {
   display: none !important;
 }
+/* Từ 926px, tweb dịch nội dung cột giữa sang phải nửa bề rộng cột trái và thư mục
+ * (_chat.scss, đối chiếu commit 4cef169d5e16). Cột trái đã bị ẩn nên đưa hai biến
+ * về 0, không thì khung chat lệch phải. Dưới 926px tweb không dùng hai biến này. */
 html.tgx-on.tgx-left-collapsed {
   --folders-sidebar-offset: 0px !important;
+  --left-column-width: 0px !important;
 }

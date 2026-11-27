@@ -99,17 +99,22 @@ vẽ lại `className` thì class lạ sẽ mất.
 | 2026-11-27 | Gộp 2 tông AI thành một kiểu Claude; giá trị cũ `ai-neutral` tự đổi sang `ai` | Người dùng chỉ cần kiểu Claude |
 | 2026-11-27 | Ẩn media mặc định bật; Telegram thay media bằng ô "đã ẩn" gọn thay vì làm mờ | Ô mờ to bằng ảnh trông như lỗi và vẫn lộ hình khối |
 | 2026-11-27 | Tin ghim giữ nguyên chiều cao gốc, chỉ đổi dáng | Telegram dùng chiều cao đó để đẩy danh sách tin; đổi là bị chồng |
+| 2026-11-27 | Kiểu Chat với AI: sidebar dùng chiều rộng do Telegram tính, bỏ ép 288px | Cột giữa và panel bên phải được Telegram đặt theo cùng số đo; ép cứng làm lệch và mất kéo giãn |
+| 2026-11-27 | Kiểu Chat với AI: bỏ dấu ⌄ cạnh tên chat và dòng nhắc dưới ô nhập | Theo [kế hoạch](docs/ai-theme-plan.md): giữ tên thật, không thêm chữ giả quanh ô nhập |
+| 2026-11-27 | Nút gửi và màu chính kiểu Chat với AI dùng `#a94e34` (tối: `#dc8b70`) thay vì `#d97757` | Chữ trắng trên `#d97757` chỉ khoảng 3.1:1, dưới mức đọc tốt |
+| 2026-11-27 | Nút thu gọn ở góc trên trái chỉ từ 926px, hẹp hơn thì về thanh nút dưới | Mốc docked/floating của tweb (`FLOATING_LEFT_SIDEBAR_SIZE = 925`); dưới mốc này góc trên là nút quay lại |
+| 2026-11-27 | Thu gọn sidebar đưa `--left-column-width` về 0 cho mọi kiểu (base.css); nút góc trên dịch theo `--folders-sidebar-offset` | tweb dịch cột giữa theo bề rộng cột trái, ẩn cột mà giữ biến thì khung chat lệch; thanh thư mục dọc đẩy cột trái sang phải 80px |
 
-## 5. Trạng thái triển khai (2026-11-27, bản 0.9.0)
+## 5. Trạng thái triển khai (2026-11-27, bản 0.10.1)
 
 | Phần | Trạng thái |
 | --- | --- |
 | Khung extension, popup, lưu cài đặt | Xong |
-| Telegram K: Review code, kiểu Claude, tin ghim, tab thư mục, ô media đã ẩn (0.10.0), bỏ ảnh nền, thu gọn sidebar, ẩn media | Selector đã đối chiếu mã nguồn tweb 2026-11-24. **Chưa kiểm trên trang thật** sau lần sửa này |
+| Telegram K: Review code, Chat với AI, tin ghim, tab thư mục, ô media đã ẩn (0.10.0), bỏ ảnh nền, thu gọn sidebar, ẩn media | Selector đã đối chiếu mã nguồn tweb 2026-11-24; thu gọn sidebar và nút góc trên đối chiếu thêm ở `4cef169d5e16` (0.10.1). **Chưa kiểm trên trang thật** sau lần sửa này |
 | Messenger: 3 kiểu, ẩn media | Selector **đoán theo hiểu biết**, chưa kiểm DOM thật. Tên biến màu của Meta chưa xác nhận |
 | Messenger: màu riêng cho tin của mình | **Chưa làm.** Cần tìm selector phân biệt (xem `themes/messenger/base.css` mục 4) |
 | Đổi tiêu đề tab | Xong |
-| Kiểu Chat AI bám sát Claude web (0.9.0) | Bảng màu kem/cam đất, sidebar 288px, dòng chat 32px, ô nhập bo 20px, nút gửi vuông bo; nút thu gọn sidebar dạng icon góc trên trái. Số đo theo hiểu biết, chưa đo trực tiếp |
+| Kiểu Chat với AI | Bảng màu kem/cam đất, sidebar theo chiều rộng Telegram, ô nhập bo 20px. Nút thu gọn ở góc trên trái từ 926px, ở thanh nút dưới trên cửa sổ hẹp. Xem [kế hoạch](docs/ai-theme-plan.md). Bố cục và các selector sửa lần này đã đối chiếu tweb tại `4cef169d5e16` |
 | Đổi icon tab | Xong (bản 0.8.0). Ghi đè href của `link[rel~=icon]` mỗi 500ms, cất href thật vào `data-tgx-real-href` |
 | Ẩn ảnh preview link (Telegram K) | Thêm `.webpage-preview(-resizer)`, `.webpage-thumb` ở bản 0.8.0, chưa kiểm trên trang thật |
 
