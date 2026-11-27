@@ -1,0 +1,298 @@
+/*
+ * Telegram Web K — kiểu "đang chat với trợ lý AI" (2 biến thể: ấm / trung tính).
+ * Nền, cột liền mạch, thu gọn sidebar nằm ở base.css.
+ * Bố cục bám html.tgx-family-ai; bảng màu bám html.tgx-theme-ai / html.tgx-theme-ai-neutral.
+ * Selector đã đối chiếu mã nguồn tweb (commit 2026-11-24).
+ * Chỉ mô phỏng bố cục chung của app chat AI, không dùng logo, tên sản phẩm hay icon.
+ */
+
+/* ===================== A. Bảng màu (theo html.night của Telegram) ===================== */
+
+/* Ấm: nền kem, chữ nâu than, câu trả lời chữ serif. */
+html.tgx-on.tgx-theme-ai {
+  --tgx-accent: #3d3929;
+  --tgx-on-accent: #faf9f5;
+  --tgx-bg: #faf9f5;
+  --tgx-sidebar: #f3f1ea;
+  --tgx-text: #3d3929;
+  --tgx-text-2: #83806f;
+  --tgx-divider: #e5e2d9;
+  --tgx-hover: #ebe8df;
+  --tgx-out: #efece3;
+  --tgx-input: #ffffff;
+  --tgx-reply-font: "Iowan Old Style", Georgia, "Noto Serif", "Times New Roman", serif;
+}
+html.tgx-on.tgx-theme-ai.night {
+  --tgx-accent: #f5f4ee;
+  --tgx-on-accent: #262624;
+  --tgx-bg: #262624;
+  --tgx-sidebar: #1f1e1d;
+  --tgx-text: #f5f4ee;
+  --tgx-text-2: #a6a39a;
+  --tgx-divider: #3a3936;
+  --tgx-hover: #33322f;
+  --tgx-out: #3a3936;
+  --tgx-input: #30302e;
+}
+
+/* Trung tính: trắng/xám, chữ sans. */
+html.tgx-on.tgx-theme-ai-neutral {
+  --tgx-accent: #0d0d0d;
+  --tgx-on-accent: #ffffff;
+  --tgx-bg: #ffffff;
+  --tgx-sidebar: #f9f9f9;
+  --tgx-text: #0d0d0d;
+  --tgx-text-2: #5d5d5d;
+  --tgx-divider: #e5e5e5;
+  --tgx-hover: #ececec;
+  --tgx-out: #f4f4f4;
+  --tgx-input: #ffffff;
+  --tgx-reply-font: var(--tgx-font);
+}
+html.tgx-on.tgx-theme-ai-neutral.night {
+  --tgx-accent: #ffffff;
+  --tgx-on-accent: #0d0d0d;
+  --tgx-bg: #212121;
+  --tgx-sidebar: #181818;
+  --tgx-text: #ececec;
+  --tgx-text-2: #afafaf;
+  --tgx-divider: #333333;
+  --tgx-hover: #2a2a2a;
+  --tgx-out: #303030;
+  --tgx-input: #303030;
+}
+
+html.tgx-on.tgx-family-ai {
+  --tgx-font: -apple-system, "Segoe UI", "Inter", "Noto Sans", Helvetica, Arial, sans-serif;
+  --tgx-col: 768px; /* bề rộng cột chat ở giữa */
+}
+
+/* ===================== B. Ghi đè biến màu của Telegram =====================
+ * Telegram ghi bảng màu bằng JS thành style inline trên <html> (themeController.ts)
+ * → BẮT BUỘC !important. Biến tin nhắn khai trên .chat → ghi đè cả ở đó. */
+html.tgx-on.tgx-family-ai,
+html.tgx-on.tgx-family-ai .chat {
+  --primary-color: var(--tgx-accent) !important;
+  --background-color: var(--tgx-bg) !important;
+  --body-background-color: var(--tgx-bg) !important;
+  --surface-color: var(--tgx-sidebar) !important;
+  --primary-text-color: var(--tgx-text) !important;
+  --secondary-text-color: var(--tgx-text-2) !important;
+  --secondary-color: var(--tgx-text-2) !important;
+  --border-color: var(--tgx-divider) !important;
+  --light-secondary-text-color: var(--tgx-hover) !important;
+  --light-filled-secondary-text-color: var(--tgx-hover) !important;
+  --input-search-background-color: var(--tgx-hover) !important;
+  --message-background-color: transparent !important;
+  --message-out-background-color: var(--tgx-out) !important;
+  --message-out-primary-color: var(--tgx-text-2) !important;
+  --message-out-time-color: var(--tgx-text-2) !important;
+  --message-out-status-color: var(--tgx-text-2) !important;
+  --chat-input-background: var(--tgx-input) !important;
+}
+html.tgx-on.tgx-family-ai body {
+  font-family: var(--tgx-font) !important;
+  color: var(--tgx-text);
+}
+
+/* ===================== C. Sidebar = "lịch sử hội thoại" ===================== */
+
+html.tgx-on.tgx-family-ai #column-left {
+  background: var(--tgx-sidebar) !important;
+  border-right: 1px solid var(--tgx-divider) !important;
+}
+html.tgx-on.tgx-family-ai :is(#column-left .chatlist, #column-left .sidebar-header) {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html.tgx-on.tgx-family-ai #column-left .input-search-input {
+  border: 0 !important;
+  border-radius: 8px !important;
+}
+
+/* Nhãn "Gần đây" trên đầu danh sách. */
+html.tgx-on.tgx-family-ai #chatlist-container .chatlist:first-of-type::before {
+  content: "Gần đây";
+  display: block;
+  padding: 12px 14px 6px;
+  font: 500 12px/1.2 var(--tgx-font);
+  color: var(--tgx-text-2);
+}
+
+/* Mỗi hội thoại: một dòng chữ, không avatar, không xem trước tin, không giờ. */
+html.tgx-on.tgx-family-ai .chatlist-chat {
+  --background: transparent !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 1px 8px !important;
+  padding: 8px 12px !important;
+  border-radius: 8px !important;
+}
+html.tgx-on.tgx-family-ai .chatlist-chat:hover {
+  background: var(--tgx-hover) !important;
+}
+html.tgx-on.tgx-family-ai .chatlist-chat.active {
+  --background: var(--tgx-hover) !important;
+  background: var(--tgx-hover) !important;
+}
+html.tgx-on.tgx-family-ai :is(.chatlist-chat .dialog-avatar, .chatlist-chat .dialog-subtitle, .chatlist-chat .dialog-title-details) {
+  display: none !important;
+}
+html.tgx-on.tgx-family-ai .chatlist-chat .user-title {
+  font: 400 14px/1.4 var(--tgx-font) !important;
+  color: var(--tgx-text) !important;
+}
+/* Ẩn xem trước tin thì mất badge chưa đọc → thay bằng tên in đậm + chấm nhỏ. */
+html.tgx-on.tgx-family-ai .chatlist-chat:has(.dialog-subtitle-badge-unread) .user-title {
+  font-weight: 600 !important;
+}
+html.tgx-on.tgx-family-ai .chatlist-chat:has(.dialog-subtitle-badge-unread) .user-title::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 6px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: var(--tgx-text-2);
+}
+
+/* ===================== D. Khung chat ===================== */
+
+html.tgx-on.tgx-family-ai :is(.chats-container, .chat) {
+  background: transparent !important;
+}
+
+/* Thanh đầu chat: phẳng, không avatar, không "đang hoạt động", tên như ô chọn model. */
+html.tgx-on.tgx-family-ai .chat .topbar {
+  background: var(--tgx-bg) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html.tgx-on.tgx-family-ai :is(.topbar .person-avatar, .topbar .bottom .info) {
+  display: none !important;
+}
+html.tgx-on.tgx-family-ai .topbar .content .top .user-title {
+  font: 500 16px/1.3 var(--tgx-font) !important;
+  color: var(--tgx-text) !important;
+}
+html.tgx-on.tgx-family-ai .topbar .content .top .user-title::after {
+  content: " ▾";
+  color: var(--tgx-text-2);
+  font-size: 12px;
+}
+
+/* Một cột chữ ở giữa. */
+html.tgx-on.tgx-family-ai .bubbles-inner {
+  max-width: var(--tgx-col) !important;
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+  box-sizing: border-box !important;
+}
+
+/* Bỏ đuôi bong bóng, avatar nhóm. */
+html.tgx-on.tgx-family-ai :is(.bubble-tail, .bubbles-group-avatar-container) {
+  display: none !important;
+}
+
+/* Tin người khác = "câu trả lời": chữ trơn, chiếm hết bề ngang cột. */
+html.tgx-on.tgx-family-ai .bubble.is-in .bubble-content-wrapper {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+html.tgx-on.tgx-family-ai .bubble.is-in .bubble-content {
+  max-width: 100% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding-left: 0 !important;
+}
+html.tgx-on.tgx-family-ai .bubble.is-in .message {
+  font-family: var(--tgx-reply-font) !important;
+  font-size: 16px !important;
+  line-height: 1.7 !important;
+  color: var(--tgx-text) !important;
+}
+
+/* Tin của mình = khối xám bo tròn bên phải. */
+html.tgx-on.tgx-family-ai .bubble.is-out .bubble-content {
+  background: var(--tgx-out) !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-radius: 18px !important;
+}
+html.tgx-on.tgx-family-ai .bubble.is-out .message {
+  font-family: var(--tgx-font) !important;
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  color: var(--tgx-text) !important;
+}
+
+/* Khoảng cách giữa các "lượt" hỏi/đáp. */
+html.tgx-on.tgx-family-ai .bubbles-inner .bubble.is-group-last {
+  margin-bottom: 20px !important;
+}
+
+/* Tên người gửi trong nhóm: nhỏ, xám, như nhãn. */
+html.tgx-on.tgx-family-ai .bubble .name {
+  font: 600 12px/1.4 var(--tgx-font) !important;
+  color: var(--tgx-text-2) !important;
+}
+
+/* Giờ gửi / dấu đã xem: mờ hẳn, rê chuột vào mới rõ. */
+html.tgx-on.tgx-family-ai .bubble .time {
+  opacity: 0.2;
+  transition: opacity 0.15s;
+}
+html.tgx-on.tgx-family-ai .bubble:hover .time {
+  opacity: 1;
+}
+
+/* ===================== E. Ô nhập tin ===================== */
+
+html.tgx-on.tgx-family-ai .chat-input {
+  background: var(--tgx-bg) !important;
+}
+html.tgx-on.tgx-family-ai .chat-input-container {
+  max-width: var(--tgx-col) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+html.tgx-on.tgx-family-ai .rows-wrapper.chat-input-wrapper {
+  background: var(--tgx-input) !important;
+  border: 1px solid var(--tgx-divider) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 2px 12px rgb(0 0 0 / 0.06) !important;
+}
+html.tgx-on.tgx-family-ai .chat-input .bubble-tail {
+  display: none !important;
+}
+html.tgx-on.tgx-family-ai .input-message-input {
+  font: 15px/1.5 var(--tgx-font) !important;
+  color: var(--tgx-text) !important;
+}
+
+/* Nút gửi: tròn, màu đậm. */
+html.tgx-on.tgx-family-ai .chat-input .btn-send {
+  background: var(--tgx-accent) !important;
+  color: var(--tgx-on-accent) !important;
+  border-radius: 50% !important;
+  box-shadow: none !important;
+}
+
+/* Dòng nhắc nhỏ dưới ô nhập. THỬ NGHIỆM: chữ chen ngang ô nhập thì xoá khối này. */
+html.tgx-on.tgx-family-ai .chat-input::after {
+  content: "AI có thể mắc lỗi. Hãy kiểm tra lại thông tin quan trọng.";
+  display: block;
+  width: 100%;
+  padding: 6px 0 8px;
+  text-align: center;
+  font: 12px/1.3 var(--tgx-font);
+  color: var(--tgx-text-2);
+  pointer-events: none;
+}

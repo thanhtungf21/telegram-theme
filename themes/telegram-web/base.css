@@ -1,0 +1,68 @@
+/*
+ * Telegram Web K (web.telegram.org/k/) — phần DÙNG CHUNG cho mọi kiểu (review code, chat AI).
+ * Chỉ hỗ trợ bản K. Selector đã đối chiếu mã nguồn tweb (commit 2026-11-24).
+ *
+ * Bật khi html có tgx-on và một kiểu khác "Giữ nguyên" (content.js gắn tgx-styled).
+ * Bảng màu --tgx-* do file kiểu (github.css / ai.css) khai.
+ */
+
+/* ---------- 1. Bỏ toàn bộ ảnh nền phía sau ----------
+ * Ảnh nền (pattern + gradient canvas) là một <div aria-hidden> không class, gắn làm
+ * con ĐẦU TIÊN của <body> (chatBackground.tsx: appChatBackground.attach). Các cột
+ * của bản K nổi trên nó với khoảng hở + bo góc, nên chỉ tô cột giữa thì nền vẫn lộ
+ * ở mép → ẩn hẳn lớp nền, tô body, và làm cột liền mạch (mục 2).
+ */
+html.tgx-on.tgx-styled body > div[aria-hidden="true"]:first-child {
+  display: none !important;
+}
+html.tgx-on.tgx-styled body,
+html.tgx-on.tgx-styled #page-chats,
+html.tgx-on.tgx-styled #main-columns {
+  background: var(--tgx-bg) !important;
+}
+
+/* ---------- 2. Cột liền mạch, không khoảng hở/bo góc/bóng ----------
+ * Các biến này do JS ghi inline (updateColumnWidths.ts) → cần !important. */
+html.tgx-on.tgx-styled {
+  --page-chats-padding: 0px !important;
+  --main-column-border-radius: 0 !important;
+  --column-box-shadow: none !important;
+}
+html.tgx-on.tgx-styled :is(#column-left, #column-center) {
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+html.tgx-on.tgx-styled #column-center {
+  background: var(--tgx-bg) !important;
+}
+
+/* Lớp gradient tô tin mình (mỗi bong bóng và cả danh sách). */
+html.tgx-on.tgx-styled :is(.bubble-gradient, .bubbles-gradient) {
+  display: none !important;
+}
+
+/* ---------- 3. Thanh thư mục dọc (folders sidebar) ----------
+ * Nó tự vẽ lại gradient của ảnh nền (__background-gradient) → ẩn, tô màu đặc. */
+html.tgx-on.tgx-styled .folders-sidebar {
+  --folders-sidebar-background: var(--tgx-sidebar) !important;
+  --folders-sidebar-background-hover: var(--tgx-hover) !important;
+  --folders-sidebar-item-color: var(--tgx-text-2) !important;
+  --folders-sidebar-item-selected-color: var(--tgx-text) !important;
+  background: var(--tgx-sidebar) !important;
+  border-radius: 0 !important;
+  border-right: 1px solid var(--tgx-divider) !important;
+}
+html.tgx-on.tgx-styled .folders-sidebar__background {
+  display: none !important;
+}
+
+/* ---------- 4. Thu gọn sidebar (nút ☰ / Alt+Shift+S) ----------
+ * Ẩn hẳn cột trái + thanh thư mục; cột giữa tự giãn vì là flex. Dùng được cả khi
+ * để "Giữ nguyên" giao diện nên không bám tgx-styled. */
+html.tgx-on.tgx-left-collapsed :is(#column-left, .folders-sidebar) {
+  display: none !important;
+}
+html.tgx-on.tgx-left-collapsed {
+  --folders-sidebar-offset: 0px !important;
+}

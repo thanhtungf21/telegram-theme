@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <h1>Chat Theme</h1>
+    <label class="row">
+      <span>Bật extension</span>
+      <input type="checkbox" id="enabled" />
+    </label>
+
+    <h2>Messenger</h2>
+    <label class="row">
+      <span>Kiểu</span>
+      <select id="theme">
+        <option value="telegram">Telegram</option>
+        <option value="github">Review code</option>
+        <option value="ai">Chat với AI</option>
+      </select>
+    </label>
+    <label class="row">
+      <span>Ảnh nền khung chat</span>
+      <input type="checkbox" id="wallpaper" />
+    </label>
+
+    <h2>Telegram Web (bản /k/)</h2>
+    <label class="row">
+      <span>Kiểu</span>
+      <select id="tgTheme">
+        <option value="github">Review code</option>
+        <option value="ai">Chat với AI (tông ấm)</option>
+        <option value="ai-neutral">Chat với AI (tông trung tính)</option>
+        <option value="off">Giữ nguyên</option>
+      </select>
+    </label>
+    <label class="row">
+      <span>Hiện sidebar</span>
+      <input type="checkbox" id="tgSidebar" />
+    </label>
+    <p class="hint">Hoặc nút ☰ ở góc dưới trái, phím Alt+Shift+S.</p>
+
+    <h2>Chung</h2>
+    <label class="row">
+      <span>Ẩn ảnh, sticker, preview link</span>
+      <input type="checkbox" id="hideMedia" />
+    </label>
+    <p class="hint">
+      Bấm vào ảnh đã ẩn để xem cả tin đó. Nút "Hiện media" ở góc dưới trái
+      (hoặc Alt+Shift+M) hiện hoặc ẩn lại tất cả.
+    </p>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,67 @@
+/*
+ * Messenger — kiểu "đang chat với trợ lý AI".
+ * Bản Messenger YẾU hơn bản Telegram: Messenger không có dấu hiệu ổn định để
+ * tách tin của mình với tin người khác, nên chưa làm được "câu trả lời không bong
+ * bóng". Hiện chỉ đổi bảng màu, font, góc bo, nền trơn, cột ở giữa.
+ * Chỉ mô phỏng phong cách chung, không dùng logo, tên hay màu nhận diện của sản phẩm nào.
+ */
+
+/* ---------- A. Bảng màu (base.css đọc các biến này) ---------- */
+html.tgx-theme-ai {
+  --tgx-accent: #3d3a35;
+  --tgx-bg: #faf9f7;
+  --tgx-sidebar: #f3f1ec;
+  --tgx-text: #2b2a27;
+  --tgx-text-2: #77746c;
+  --tgx-divider: #e6e3dc;
+  --tgx-hover: #ebe8e1;
+  --tgx-in: transparent;
+  --tgx-out: #ebe8e1;
+  --tgx-out-text: #2b2a27;
+  --tgx-wall-1: #faf9f7;
+  --tgx-wall-2: #faf9f7;
+  --tgx-radius: 18px;
+  --tgx-list-radius: 8px;
+  --tgx-font: -apple-system, "Segoe UI", "Inter", "Noto Sans", Helvetica, Arial, sans-serif;
+  --tgx-pattern: none;
+}
+
+html.tgx-theme-ai.__fb-dark-mode,
+html.tgx-theme-ai .__fb-dark-mode {
+  --tgx-accent: #ececec;
+  --tgx-bg: #212121;
+  --tgx-sidebar: #171717;
+  --tgx-text: #ececec;
+  --tgx-text-2: #a3a3a3;
+  --tgx-divider: #2f2f2f;
+  --tgx-hover: #2a2a2a;
+  --tgx-out: #303030;
+  --tgx-out-text: #ececec;
+  --tgx-wall-1: #212121;
+  --tgx-wall-2: #212121;
+}
+
+/* ---------- B. Luật riêng ---------- */
+
+/* Nền khung chat luôn trơn, kể cả khi tắt "Ảnh nền" (base.css chỉ tô khi bật). */
+html.tgx-on.tgx-theme-ai [role="main"] {
+  background: var(--tgx-bg) !important;
+}
+
+/* Chữ thoáng như văn bản dài. Cùng giả định cấu trúc với base.css mục 4. */
+html.tgx-on.tgx-theme-ai [role="main"] [role="row"] div[dir="auto"] {
+  font-size: 15px !important;
+  line-height: 1.65 !important;
+}
+
+/* Gom các dòng tin vào một cột giữa. THỬ NGHIỆM: lệch layout thì xoá khối này. */
+html.tgx-on.tgx-theme-ai [role="main"] [role="row"] {
+  max-width: 768px;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Danh sách hội thoại như "lịch sử": avatar nhạt hẳn. */
+html.tgx-on.tgx-theme-ai [role="navigation"] img {
+  filter: grayscale(1) opacity(0.35);
+}

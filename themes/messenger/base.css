@@ -1,0 +1,83 @@
+/*
+ * Luật giao diện DÙNG CHUNG cho mọi theme (mức 1, chỉ CSS).
+ * File này không chứa màu cụ thể: chỉ đọc biến --tgx-*. Mỗi theme
+ * (telegram.css, zalo.css) chỉ khai bảng màu → thêm theme mới không phải chép luật.
+ *
+ * Chiến lược bền: ưu tiên GHI ĐÈ BIẾN CSS mà Meta dùng để tô màu toàn trang,
+ * thay vì bám vào class rối (x1n2onr6…) vốn đổi theo từng bản build.
+ * Mọi luật đều nằm dưới html.tgx-on → tắt extension là trang về nguyên bản.
+ */
+
+/* ---------- 1. Ghi đè biến màu của Meta ----------
+ * Meta có thể gắn class chế độ sáng/tối ngay trên <html> hoặc trên khối con → bắt cả hai.
+ * Biến nào Meta đổi tên thì dòng đó chỉ mất tác dụng, không làm vỡ trang.
+ * Kiểm lại: DevTools → chọn <html> → Computed → lọc "--".
+ */
+html.tgx-on.__fb-light-mode,
+html.tgx-on.__fb-dark-mode,
+html.tgx-on .__fb-light-mode,
+html.tgx-on .__fb-dark-mode {
+  --accent: var(--tgx-accent);
+  --primary-button-background: var(--tgx-accent);
+  --blue-link: var(--tgx-accent);
+  --primary-text: var(--tgx-text);
+  --secondary-text: var(--tgx-text-2);
+  --placeholder-text: var(--tgx-text-2);
+  --surface-background: var(--tgx-sidebar);
+  --card-background: var(--tgx-sidebar);
+  --messenger-card-background: var(--tgx-bg);
+  --web-wash: var(--tgx-sidebar);
+  --wash: var(--tgx-hover);
+  --hover-overlay: color-mix(in srgb, var(--tgx-text) 6%, transparent);
+  --divider: var(--tgx-divider);
+  --comment-background: var(--tgx-in);
+}
+
+/* ---------- 2. Font ---------- */
+html.tgx-on body {
+  font-family: var(--tgx-font);
+}
+
+/* ---------- 3. Nền khung chat ----------
+ * role="main" là landmark trợ năng, Meta ít đổi hơn class rất nhiều.
+ * --tgx-pattern = none thì chỉ còn gradient (theme Zalo dùng nền trơn).
+ */
+html.tgx-wallpaper [role="main"] {
+  background-color: var(--tgx-wall-2) !important;
+  background-image:
+    var(--tgx-pattern),
+    linear-gradient(160deg, var(--tgx-wall-1), var(--tgx-wall-2)) !important;
+  background-attachment: fixed;
+}
+
+/* ---------- 4. Bong bóng tin nhắn ----------
+ * PHẦN CẦN CHỈNH TAY: Messenger không gắn thuộc tính ổn định cho bong bóng.
+ * Selector dưới đây dựa trên cấu trúc [role="row"] → khối chữ dir="auto";
+ * mở DevTools trên một tin nhắn thật để xác nhận rồi sửa nếu không ăn.
+ */
+html.tgx-on [role="row"] div[dir="auto"] {
+  border-radius: var(--tgx-radius) !important;
+}
+
+/* Màu riêng cho tin CỦA MÌNH: chưa bật vì chưa có selector đã kiểm trên DOM thật.
+ * Cách tìm: chuột phải lên tin mình gửi → Inspect → leo lên tới [role="row"],
+ * tìm thuộc tính/aria phân biệt được với tin người khác, rồi thay XXX bên dưới.
+ *
+ * html.tgx-on [role="row"] XXX div[dir="auto"] {
+ *   background-color: var(--tgx-out) !important;
+ *   color: var(--tgx-out-text) !important;
+ * }
+ */
+
+/* ---------- 5. Danh sách hội thoại ---------- */
+html.tgx-on [role="navigation"] [role="row"] a,
+html.tgx-on [role="navigation"] [role="listitem"] a {
+  border-radius: var(--tgx-list-radius);
+}
+
+/* ---------- 6. Thanh cuộn mảnh ---------- */
+html.tgx-on ::-webkit-scrollbar { width: 6px; }
+html.tgx-on ::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--tgx-text) 20%, transparent);
+  border-radius: 3px;
+}

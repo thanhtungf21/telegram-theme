@@ -1,0 +1,133 @@
+/*
+ * Telegram Web K — kiểu "đang review code".
+ * Nền, cột liền mạch, thu gọn sidebar nằm ở base.css. File này: bảng màu + dáng "file diff".
+ * Selector đã đối chiếu mã nguồn tweb (commit 2026-11-24).
+ * Chỉ mô phỏng phong cách, không dùng logo hay icon của GitHub/GitLab.
+ */
+
+/* ---------- A. Bảng màu (theo html.night của Telegram) ---------- */
+html.tgx-on.tgx-theme-github {
+  --tgx-accent: #0969da;
+  --tgx-bg: #ffffff;
+  --tgx-sidebar: #f6f8fa;
+  --tgx-text: #1f2328;
+  --tgx-text-2: #59636e;
+  --tgx-divider: #d1d9e0;
+  --tgx-hover: #eaeef2;
+  --tgx-out: #dafbe1;        /* tin của mình: xanh như dòng "thêm" trong diff */
+  --tgx-out-mark: #1a7f37;   /* vạch dọc bên trái dòng "thêm" */
+  --tgx-gutter: #f6f8fa;
+  --tgx-font: -apple-system, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  --tgx-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+html.tgx-on.tgx-theme-github.night {
+  --tgx-accent: #4493f8;
+  --tgx-bg: #0d1117;
+  --tgx-sidebar: #010409;
+  --tgx-text: #f0f6fc;
+  --tgx-text-2: #9198a1;
+  --tgx-divider: #3d444d;
+  --tgx-hover: #151b23;
+  --tgx-out: #1a3324;
+  --tgx-out-mark: #3fb950;
+  --tgx-gutter: #151b23;
+}
+
+/* ---------- B. Ghi đè biến màu của Telegram ----------
+ * Telegram ghi bảng màu bằng JS thành style inline trên <html> (themeController.ts)
+ * → BẮT BUỘC !important. Biến tin nhắn khai trên .chat → ghi đè cả ở đó. */
+html.tgx-on.tgx-theme-github,
+html.tgx-on.tgx-theme-github .chat {
+  --primary-color: var(--tgx-accent) !important;
+  --background-color: var(--tgx-bg) !important;
+  --body-background-color: var(--tgx-bg) !important;
+  --surface-color: var(--tgx-sidebar) !important;
+  --primary-text-color: var(--tgx-text) !important;
+  --secondary-text-color: var(--tgx-text-2) !important;
+  --border-color: var(--tgx-divider) !important;
+  --light-secondary-text-color: var(--tgx-hover) !important;
+  --light-filled-secondary-text-color: var(--tgx-hover) !important;
+  --input-search-background-color: var(--tgx-hover) !important;
+  --message-background-color: var(--tgx-bg) !important;
+  --message-out-background-color: var(--tgx-out) !important;
+  --message-out-primary-color: var(--tgx-out-mark) !important;
+  --chat-input-background: var(--tgx-bg) !important;
+}
+html.tgx-on.tgx-theme-github body {
+  font-family: var(--tgx-font) !important;
+}
+
+/* ---------- C. Tin nhắn thành "dòng code" ---------- */
+html.tgx-on.tgx-theme-github .bubble .message {
+  font-family: var(--tgx-mono) !important;
+  font-size: 12.5px !important;
+  line-height: 20px !important;
+}
+html.tgx-on.tgx-theme-github .bubble-content {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: 1px solid var(--tgx-divider) !important;
+}
+html.tgx-on.tgx-theme-github .bubble.is-in .bubble-content {
+  background: var(--tgx-bg) !important;
+}
+/* Tin của mình: nền xanh + vạch trái như dòng "+" trong diff. */
+html.tgx-on.tgx-theme-github .bubble.is-out .bubble-content {
+  background: var(--tgx-out) !important;
+  box-shadow: inset 3px 0 0 var(--tgx-out-mark) !important;
+}
+html.tgx-on.tgx-theme-github :is(.bubble-tail, .bubbles-group-avatar-container) {
+  display: none !important;
+}
+
+/* Số dòng ở lề trái. THỬ NGHIỆM: layout lệch thì xoá cả khối này. */
+html.tgx-on.tgx-theme-github .bubbles-inner {
+  counter-reset: tgx-line;
+  padding-left: 48px !important;
+}
+html.tgx-on.tgx-theme-github .bubbles-inner .bubble {
+  counter-increment: tgx-line;
+  position: relative;
+}
+html.tgx-on.tgx-theme-github .bubbles-inner .bubble::after {
+  content: counter(tgx-line);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -48px;
+  width: 40px;
+  padding-right: 8px;
+  text-align: right;
+  font: 12px/20px var(--tgx-mono);
+  color: var(--tgx-text-2);
+  background: var(--tgx-gutter);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---------- D. Sidebar, thanh đầu chat, ô nhập: phẳng ---------- */
+html.tgx-on.tgx-theme-github :is(#column-left, #column-left .chatlist, #column-left .sidebar-header) {
+  background: var(--tgx-sidebar) !important;
+}
+html.tgx-on.tgx-theme-github #column-left {
+  border-right: 1px solid var(--tgx-divider) !important;
+}
+html.tgx-on.tgx-theme-github .chatlist-chat {
+  border-radius: 6px !important;
+}
+html.tgx-on.tgx-theme-github .chatlist-chat .dialog-avatar {
+  filter: grayscale(1) opacity(0.6);
+}
+html.tgx-on.tgx-theme-github .chat .topbar {
+  background: var(--tgx-sidebar) !important;
+  border-bottom: 1px solid var(--tgx-divider) !important;
+  box-shadow: none !important;
+}
+html.tgx-on.tgx-theme-github .rows-wrapper.chat-input-wrapper {
+  border: 1px solid var(--tgx-divider) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+}
+html.tgx-on.tgx-theme-github .chat-input .bubble-tail {
+  display: none !important;
+}

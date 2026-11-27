@@ -1,0 +1,44 @@
+/*
+ * Công tắc "Ẩn ảnh, sticker, preview link" — dùng chung cho Messenger và Telegram K,
+ * độc lập với kiểu giao diện đang chọn.
+ *
+ * Ẩn bằng filter (làm mờ rất mạnh) thay vì display:none: giữ nguyên chỗ trống nên
+ * khung chat không nhảy, và dùng được cho cả <img>/<video>/<canvas> lẫn khối bọc.
+ * Bấm vào media trong một tin → JS gắn data-tgx-revealed lên CẢ TIN đó → hiện cả tin
+ * (một tin có thể có nhiều lớp ảnh: thumbnail mờ + ảnh thật + spoiler).
+ * Nút "Hiện media" (hoặc Alt+Shift+M) → class tgx-reveal-all → hiện hết.
+ *
+ * VÙNG BẤM-ĐỂ-XEM nằm ở MEDIA_CLICK trong src/content.js — sửa ở đây thì xem lại ở đó.
+ */
+
+/* Messenger: không có class ổn định → ẩn mọi ảnh/video trong khung chat, trừ emoji
+ * (Facebook vẽ emoji bằng ảnh từ emoji.php — ẩn thì mất cả emoji trong chữ). */
+html.tgx-hide-media.tgx-site-messenger:not(.tgx-reveal-all)
+  :is([role="main"] img:not([src*="emoji.php"]), [role="main"] video):not([data-tgx-revealed], [data-tgx-revealed] *),
+
+/* Telegram K: bám class của chính phần tử media (đã đối chiếu mã nguồn tweb),
+ * không bám khối bọc — vì cùng một ảnh xuất hiện ở nhiều chỗ: tin nhắn, ảnh trong
+ * preview link, ảnh nhỏ trong trích dẫn trả lời, ảnh nhỏ cạnh tên chat ở sidebar,
+ * tin ghim trên đầu chat.
+ * Trừ avatar (component avatar đổi media-photo → avatar-photo, bọc trong .avatar-relative)
+ * và emoji tuỳ biến (.custom-emoji). */
+html.tgx-hide-media.tgx-site-telegram:not(.tgx-reveal-all) #page-chats
+  :is(
+    .media-photo,
+    .media-video,
+    .media-video-container,
+    .media-poster,
+    .media-round,
+    .media-gif-wrapper,
+    .media-sticker,
+    .media-sticker-wrapper,
+    .media-spoiler-container,
+    .thumbnail,
+    .reply-media,
+    .dialog-subtitle-media
+  ):not([class^="avatar-"], .avatar-relative *, .custom-emoji, .custom-emoji *, [data-tgx-revealed], [data-tgx-revealed] *) {
+  filter: blur(28px) grayscale(1) opacity(0.12) !important;
+  outline: 1px dashed currentColor;
+  outline-offset: -1px;
+  cursor: zoom-in;
+}
